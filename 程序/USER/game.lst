@@ -1,0 +1,625 @@
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE GAME
+OBJECT MODULE PLACED IN ..\OBJ\game.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\game.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXTEND 
+                    -PRINT(.\game.lst) OBJECT(..\OBJ\game.obj)
+
+line level    source
+
+   1          //12864并行接口参考程序，控制器st7920  
+   2          #include "STC15F2K60S2.h"
+   3          #include "display.h"
+   4          #include "Key.h"
+   5          #include "game.h"
+   6          #define uchar unsigned char
+   7          #define uint unsigned int
+   8          
+   9          static unsigned long Seed = 1;
+  10          #define A 48271L
+  11          #define M 2147483647L
+  12          #define Q (M / A)
+  13          #define R (M % A)
+  14          /************************************
+  15          伪随机数发生器
+  16          *************************************/
+  17          double Random(void)
+  18          {
+  19   1              long TmpSeed;
+  20   1              TmpSeed=A*(Seed%Q)-R*(Seed/Q);
+  21   1              if(TmpSeed>=0)
+  22   1                      Seed=TmpSeed;
+  23   1              else
+  24   1                      Seed=TmpSeed+M;
+  25   1              return (double)Seed/M;
+  26   1      }
+  27          
+  28          /**************************************
+  29          为伪随机数发生器播种
+  30          ***************************************/
+  31          void InitRandom(unsigned long InitVal)
+  32          {
+  33   1              Seed=InitVal;
+  34   1      }
+  35          
+  36          //延时子程序
+  37          void DelayGame(unsigned int t)
+  38          {  
+  39   1              unsigned int i,j;
+  40   1              for(i=0;i<t;i++)
+  41   1                      for(j=0;j<10;j++);    
+  42   1      }
+  43          
+  44          #define LGOU 0
+  45          #define RGOU 1
+  46          #define RZ      2
+  47          #define LZ      3
+  48          #define T       4
+  49          #define GUN 5
+  50          #define BOX 6
+  51          unsigned int idata num[19+2]={
+  52          0xfff,//第1行，最下面
+  53          0x801,0x801,0x801,0x801,0x801,0x801,0x801,0x801,0x801,0x801,
+  54          0x801,0x801,0x801,0x801,0x801,0x801,0x801,0x801,0x801,//第2行到第20行共19行
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 2   
+
+  55          0xfff//第21行，最上面
+  56          
+  57          };//定义共21行，其中num[0]为下墙壁行，num[20]为上墙壁行,每行12格，最左一格为左墙壁列，最右一格为右墙壁列
+  58          unsigned char code Block[28][2]={
+  59          /*
+  60          *   口     口口口   口口
+  61          *   口     口         口      口
+  62          *   口口              口  口口口      
+  63          */
+  64          {0x88,0xc0},{0xe8,0x00},{0x62,0x20},{0x02,0xe0},
+  65          /*
+  66          *   口        口口 口口口
+  67          *   口 口     口       口
+  68          * 口口 口口口 口    
+  69          */
+  70          {0x22,0x60},{0x08,0xe0},{0xc8,0x80},{0xe2,0x00},  
+  71          /*
+  72          *   口
+  73          *   口口         口口
+  74          *     口       口口
+  75          */
+  76          {0x8c,0x40},{0x6c,0x00},{0x8c,0x40},{0x6c,0x00},
+  77          /*
+  78          *   口        口口
+  79          * 口口          口口
+  80          * 口
+  81          */
+  82          {0x4c,0x80},{0xc6,0x00},{0x4c,0x80},{0xc6,0x00},  
+  83          /*
+  84          *          口                口
+  85          *   口     口口   口口口   口口
+  86          * 口口口   口       口       口
+  87          */
+  88          {0x04,0xe0},{0x8c,0x80},{0xe4,0x00},{0x26,0x20},
+  89          /*口
+  90          * 口
+  91          * 口       口口口口
+  92          * 口
+  93          */
+  94          {0x44,0x44},{0x0f,0x00},{0x44,0x44},{0x0f,0x00},  
+  95          /*
+  96          * 口口
+  97          * 口口
+  98          */  
+  99          {0x06,0x60},{0x06,0x60},{0x06,0x60},{0x06,0x60}
+ 100          };
+ 101          
+ 102          #define PASSSCORE 20
+ 103          struct Jimu Sign[3];//积木结构体
+ 104          
+ 105          unsigned char SysFlag=0;
+ 106          #define NEWSIGNFLAG 0
+ 107          #define DEADFLAG 1
+ 108          #define PAUSEFLAG 2
+ 109          
+ 110          unsigned char Score=0;
+ 111          unsigned char Level=1;
+ 112          unsigned char DelayCnt=5;
+ 113          unsigned char KeyBuffer=0;
+ 114          #define RESEVER 1
+ 115          #define CHANGE 2
+ 116          #define DOWN 3
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 3   
+
+ 117          #define LEFT 4
+ 118          #define RIGHT 5
+ 119          #define PAUSE 6
+ 120          
+ 121          /*********************************
+ 122          初始化MPU
+ 123          **********************************/
+ 124          void InitCpu(void)
+ 125          {
+ 126   1      TH0=0xd8;TL0=0xef;//使能随机数生成器
+ 127   1              T2H=0xff;
+ 128   1              T2L=0;
+ 129   1              AUXR=0x10;
+ 130   1              IE2=0x04;
+ 131   1              EA=1;
+ 132   1      }
+ 133          
+ 134                  /*****************************
+ 135          定时中断服务子程序
+ 136          ******************************/
+ 137          void Timer2Int(void) interrupt 12
+ 138          {
+ 139   1              switch(OSReadKey())
+ 140   1              {
+ 141   2                      case 9:
+ 142   2                                      KeyBuffer=PAUSE;
+ 143   2                                      break;
+ 144   2                      case 13:
+ 145   2                                      KeyBuffer=CHANGE;
+ 146   2                                      break;
+ 147   2                      case 17:
+ 148   2                                      KeyBuffer=DOWN;
+ 149   2                                      break;
+ 150   2                      case 21:
+ 151   2                                      KeyBuffer=LEFT;
+ 152   2                                      break;
+ 153   2                      case 25:
+ 154   2                                      KeyBuffer=RIGHT;
+ 155   2                                      break;
+ 156   2                      default:
+ 157   2                                      break;
+ 158   2              }
+ 159   1      }
+ 160          
+ 161          /******************************
+ 162          画墙壁，初始化界面
+ 163          *******************************/
+ 164          void DrawBoard(void)
+ 165          {
+ 166   1              unsigned char n;
+ 167   1              for(n=0;n<12;n++)
+ 168   1              {
+ 169   2                      Lcd_Rectangle(3*n,0,3*n+2,2,1);
+ 170   2                      Lcd_Rectangle(3*n,60,3*n+2,62,1);
+ 171   2              }
+ 172   1              for(n=0;n<20;n++)
+ 173   1              {
+ 174   2                      Lcd_Rectangle(0,3*n,2,3*n+2,1);
+ 175   2                      Lcd_Rectangle(33,3*n,35,3*n+2,1);               
+ 176   2              }
+ 177   1              Lcd_WriteStr(0,4,"TETRIS");
+ 178   1              Lcd_WriteStr(2,3,"Score:");
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 4   
+
+ 179   1              Lcd_WriteStr(3,3,"Level:");
+ 180   1      }
+ 181          
+ 182          /***********************************
+ 183          游戏结束处理
+ 184          ************************************/
+ 185          void GameOver(void)
+ 186          {
+ 187   1              if((SysFlag&(1<<DEADFLAG))!=0)
+ 188   1                      Lcd_WriteStr(1,3,"请退出");
+ 189   1              else
+ 190   1                      Lcd_WriteStr(1,3,"You Pass");
+ 191   1      }
+ 192          
+ 193          unsigned int code MaskTab[16]={
+ 194          0x0001,0x0002,0x0004,0x0008,0x0010,0x0020,0x0040,0x0080,
+ 195          0x0100,0x0200,0x0400,0x0800,0x1000,0x2000,0x4000,0x8000
+ 196          };
+ 197          
+ 198          /**********************************
+ 199          根据积木图标左下坐标X，Y来画出积木图标
+ 200          ***********************************/
+ 201          void DrawSign(struct Jimu Temp,unsigned char DrawMode)
+ 202          {
+ 203   1              unsigned char m,n;
+ 204   1              for(m=0;m<4;m++)
+ 205   1                      for(n=0;n<4;n++)
+ 206   1                      {
+ 207   2                              if((Temp.dat&MaskTab[4*m+n])!=0)
+ 208   2                                      Lcd_Rectangle(Temp.x+n*3,Temp.y-2-3*m,Temp.x+n*3+2,Temp.y-3*m,DrawMode);
+ 209   2                      }
+ 210   1      }
+ 211          
+ 212          /********************************
+ 213          将积木图标值融入num数据中
+ 214          也即把积木图标固定，无法再下降
+ 215          *********************************/
+ 216          FixSign(void)
+ 217          {
+ 218   1              unsigned char m,n;
+ 219   1              for(m=0;m<4;m++)//行循环
+ 220   1                      for(n=0;n<4;n++)//列循环
+ 221   1                      {
+ 222   2                              if((Sign[0].dat&MaskTab[4*m+n])!=0)
+ 223   2                              {
+ 224   3                                      num[20-(Sign[0].y-2)/3+m]|=MaskTab[11-Sign[0].x/3-n];
+ 225   3                              }
+ 226   2                      }
+ 227   1      }
+ 228          
+ 229          /********************************
+ 230          判断积木图标中方块是否与障碍方块重合
+ 231          *********************************/
+ 232          unsigned char CheckIf(void)
+ 233          {
+ 234   1              unsigned char m,n;
+ 235   1              for(m=0;m<4;m++)//行循环
+ 236   1                      for(n=0;n<4;n++)//列循环
+ 237   1                      {
+ 238   2                              if((Sign[1].dat&MaskTab[4*m+n])!=0)
+ 239   2                              {
+ 240   3                                      if((num[20-(Sign[1].y-2)/3+m]&MaskTab[11-Sign[1].x/3-n])!=0)
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 5   
+
+ 241   3                                              return 0;
+ 242   3                              }
+ 243   2                      }
+ 244   1              return 1;
+ 245   1      }
+ 246          
+ 247          /********************************
+ 248          判断积木图标是否可以继续下降一格
+ 249          ********************************/
+ 250          unsigned char CheckIfDown(void)
+ 251          {
+ 252   1              Sign[1]=Sign[0];//
+ 253   1              Sign[1].y+=3;//假设下降一格     
+ 254   1              return CheckIf();
+ 255   1              
+ 256   1      }
+ 257          
+ 258          /********************************
+ 259          判断积木图标是否可以向左移动
+ 260          *********************************/
+ 261          unsigned char CheckIfLeft(void)
+ 262          {
+ 263   1              Sign[1]=Sign[0];
+ 264   1              Sign[1].x-=3;   
+ 265   1              return CheckIf();
+ 266   1      }
+ 267          
+ 268          /********************************
+ 269          判断积木图标是否可以向右移动
+ 270          *********************************/
+ 271          unsigned char CheckIfRight(void)
+ 272          {
+ 273   1              Sign[1]=Sign[0];
+ 274   1              Sign[1].x+=3;   
+ 275   1              return CheckIf();
+ 276   1      }
+ 277          
+ 278          /********************************
+ 279          判断是否可以旋转
+ 280          *********************************/
+ 281          unsigned char CheckIfRoll(void)
+ 282          {
+ 283   1              unsigned char i;
+ 284   1              unsigned int Temp;
+ 285   1              Sign[1]=Sign[0];
+ 286   1              if(++Sign[1].change>3)
+ 287   1                      Sign[1].change=0;
+ 288   1              i=Sign[1].type*4+Sign[1].change;
+ 289   1              Temp=(unsigned int)Block[i][0]<<8;
+ 290   1              Temp=Temp|Block[i][1];
+ 291   1              Sign[1].dat=Temp;
+ 292   1              
+ 293   1              return CheckIf();
+ 294   1      }
+ 295          
+ 296          /********************************
+ 297          寻找满格的行并做消除处理
+ 298          最多寻找4个满行并做消除
+ 299          *********************************/
+ 300          void DelFull(void)
+ 301          {
+ 302   1              unsigned char m,n;
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 6   
+
+ 303   1              unsigned char Temp;
+ 304   1              unsigned char Flag=0;
+ 305   1              Temp=(Sign[0].y-2)/3;
+ 306   1              if(Temp>=20)//防止越过了下边界
+ 307   1                      Temp=1;
+ 308   1              else
+ 309   1                      Temp=20-Temp;
+ 310   1              for(n=Temp+3;n>=Temp;n--)//积木图标的最顶行开始寻找满行比较有利于运算
+ 311   1              {
+ 312   2                      if(num[n]==0xfff)
+ 313   2                      {
+ 314   3                              Flag=1;
+ 315   3                              for(m=n+1;m<=19;m++)
+ 316   3                              {
+ 317   4                                      num[m-1]=num[m];
+ 318   4                              }
+ 319   3                              num[m]=0x801;
+ 320   3                              Score++;//每找到一个满行，则分数加1
+ 321   3                      }
+ 322   2              }
+ 323   1              if(Flag)//为加速而设置并判断的标志，有已固定的积木有满格消行变化则重画积木界面
+ 324   1              {
+ 325   2                      for(m=Temp;m<=19;m++)//为加速，不必要重第一行重画起，只需要从积木图标最下行开始往上的重画
+ 326   2                              for(n=1;n<=10;n++)
+ 327   2                              {
+ 328   3                                      if((num[m]&MaskTab[n])==0)
+ 329   3                                      {       
+ 330   4                                              if(Lcd_ReadPixel(30-(n-1)*3,57-(m-1)*3)!=0)//为加速而做的读象素操作
+ 331   4                                              {
+ 332   5                                                      Lcd_Rectangle(30-(n-1)*3,57-(m-1)*3,30-(n-1)*3+2,57-(m-1)*3+2,0);
+ 333   5                                              }
+ 334   4                                      }
+ 335   3                                      else
+ 336   3                                      {
+ 337   4                                              if(Lcd_ReadPixel(30-(n-1)*3,57-(m-1)*3)==0)//为加速而做的读象素操作
+ 338   4                                              {
+ 339   5                                                      Lcd_Rectangle(30-(n-1)*3,57-(m-1)*3,30-(n-1)*3+2,57-(m-1)*3+2,1);
+ 340   5                                              }
+ 341   4                                      }
+ 342   3                              }
+ 343   2              }
+ 344   1      }
+ 345          
+ 346          
+ 347          /*******************************
+ 348          随机产生一个积木图标放到预产生区域并显示出来
+ 349          ********************************/
+ 350          void CreatSign(void)
+ 351          {
+ 352   1              unsigned char n=0;
+ 353   1              unsigned int Temp=0;
+ 354   1      /*      Sign[0].dat=0;
+ 355   1              Sign[0].x=0;
+ 356   1              Sign[0].y=0;
+ 357   1              Sign[0].type=0;
+ 358   1              Sign[0].change=0;
+ 359   1      
+ 360   1              Sign[1].dat=0;
+ 361   1              Sign[1].x=0;
+ 362   1              Sign[1].y=0;
+ 363   1              Sign[1].type=0;
+ 364   1              Sign[1].change=0;
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 7   
+
+ 365   1      
+ 366   1              Sign[3].dat=0;
+ 367   1              Sign[3].x=0;
+ 368   1              Sign[3].y=0;
+ 369   1              Sign[3].type=0;
+ 370   1              Sign[3].change=0;        */
+ 371   1              DrawSign(Sign[2],0);//先清除
+ 372   1      
+ 373   1              n=Random()*28;
+ 374   1              Temp=(unsigned int)Block[n][0]<<8;
+ 375   1              Temp=Temp|Block[n][1];
+ 376   1              Sign[2].dat=Temp;
+ 377   1              Sign[2].x=45;
+ 378   1              Sign[2].y=4*3+2;
+ 379   1              Sign[2].type=n/4;
+ 380   1              Sign[2].change=n%4;
+ 381   1              DrawSign(Sign[2],1);//后画出
+ 382   1      }
+ 383          
+ 384          void PrintScore(void)
+ 385          {
+ 386   1              unsigned char Str[3];
+ 387   1              Str[0]=(Score/10)|0x30;
+ 388   1              Str[1]=(Score%10)|0x30;
+ 389   1              Str[2]=0;
+ 390   1              Lcd_WriteStr(2,6,Str);
+ 391   1      }
+ 392          
+ 393          void PrintLevel(void)
+ 394          {
+ 395   1              unsigned char Str[3];
+ 396   1              Str[0]=(Level/10)|0x30;
+ 397   1              Str[1]=(Level%10)|0x30;
+ 398   1              Str[2]=0;
+ 399   1              Lcd_WriteStr(3,6,Str);
+ 400   1      }
+ 401          
+ 402          /********************************
+ 403          游戏的具体过程，也是贪吃蛇算法的关键部分
+ 404          *********************************/
+ 405          void GamePlay(void)
+ 406          {
+ 407   1              unsigned char m,n;
+ 408   1              unsigned int Temp;
+ 409   1              num[0]=0xfff;//第1行，最下面
+ 410   1          num[1]=0x801;
+ 411   1              num[2]=0x801;
+ 412   1              num[3]=0x801;
+ 413   1              num[4]=0x801;
+ 414   1              num[5]=0x801;
+ 415   1              num[6]=0x801;
+ 416   1              num[7]=0x801;
+ 417   1              num[8]=0x801;
+ 418   1              num[9]=0x801;
+ 419   1              num[10]=0x801;
+ 420   1          num[11]=0x801;
+ 421   1              num[12]=0x801;
+ 422   1              num[13]=0x801;
+ 423   1              num[14]=0x801;
+ 424   1              num[15]=0x801;
+ 425   1              num[16]=0x801;
+ 426   1              num[17]=0x801;
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 8   
+
+ 427   1              num[18]=0x801;
+ 428   1              num[19]=0x801;
+ 429   1          num[20]=0xfff;//第21行，最上面
+ 430   1              SysFlag=0;
+ 431   1              SysFlag|=1<<NEWSIGNFLAG;//刚开始初始化为需要产生新的积木图标
+ 432   1              InitRandom(TL0);
+ 433   1              Lcd_WriteStr(1,3,"Playing");
+ 434   1              PrintScore();
+ 435   1              PrintLevel();
+ 436   1              CreatSign();
+ 437   1              while(menuflag==7)
+ 438   1              {       
+ 439   2                      if((SysFlag&(1<<NEWSIGNFLAG))==1)//判是否需要产生新的积木图标
+ 440   2                      {
+ 441   3                              SysFlag&=~(1<<NEWSIGNFLAG);
+ 442   3                              Sign[0]=Sign[2];
+ 443   3                              CreatSign();
+ 444   3                              Sign[0].x=12;
+ 445   3                              Sign[0].y=14;
+ 446   3      
+ 447   3                              for(m=0;m<4;m++)//行循环
+ 448   3                              {
+ 449   4                                      for(n=0;n<4;n++)//列循环
+ 450   4                                      {
+ 451   5                                              if((Sign[0].dat&MaskTab[15-m*4-n])==0)
+ 452   5                                                      break;
+ 453   5                                      }
+ 454   4                                      if(n==4)
+ 455   4                                              Sign[0].y-=3;
+ 456   4                              }//将积木图标出现置顶
+ 457   3                              
+ 458   3                              for(m=0;m<4;m++)//行循环
+ 459   3                                      for(n=0;n<4;n++)//列循环
+ 460   3                                      {
+ 461   4                                              if((Sign[0].dat&MaskTab[4*m+n])!=0)
+ 462   4                                              {
+ 463   5                                                      if((num[20-(Sign[0].y-2)/3+m]&MaskTab[11-Sign[0].x/3-n])!=0)
+ 464   5                                                              SysFlag|=1<<DEADFLAG;
+ 465   5                                              }
+ 466   4                                      }
+ 467   3                              if((SysFlag&(1<<DEADFLAG))!=0)
+ 468   3                                      break;//如果产生新的积木图标中的方块与已固定好的方块重合，则死亡。游戏结束
+ 469   3                              DrawSign(Sign[0],1);    
+ 470   3                      }
+ 471   2                      switch(KeyBuffer)
+ 472   2                      {
+ 473   3                              case LEFT:
+ 474   3                                              KeyBuffer=0;
+ 475   3                                              if((SysFlag&(1<<PAUSEFLAG))==0)
+ 476   3                                              {
+ 477   4                                                      if(CheckIfLeft())
+ 478   4                                                      {
+ 479   5                                                              DrawSign(Sign[0],0);
+ 480   5                                                              Sign[0].x-=3;
+ 481   5                                                              DrawSign(Sign[0],1);
+ 482   5                                                      }
+ 483   4                                              }
+ 484   3                                              else
+ 485   3                                              {
+ 486   4                                                      if(++Level>=10)
+ 487   4                                                              Level=1;
+ 488   4                                                      PrintLevel();
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 9   
+
+ 489   4                                              }
+ 490   3                                              break;
+ 491   3                              case RIGHT:
+ 492   3                                              KeyBuffer=0;
+ 493   3                                              if((SysFlag&(1<<PAUSEFLAG))==0)
+ 494   3                                              {
+ 495   4                                                      if(CheckIfRight())
+ 496   4                                                      {
+ 497   5                                                              DrawSign(Sign[0],0);
+ 498   5                                                              Sign[0].x+=3;
+ 499   5                                                              DrawSign(Sign[0],1);    
+ 500   5                                                      }
+ 501   4                                              }
+ 502   3                                              else
+ 503   3                                              {
+ 504   4                                                      if(++Level>=10)
+ 505   4                                                              Level=1;
+ 506   4                                                      PrintLevel();
+ 507   4                                              }
+ 508   3                                              break;
+ 509   3                              case DOWN:
+ 510   3                                              KeyBuffer=0;
+ 511   3                                              if((SysFlag&(1<<PAUSEFLAG))==0)
+ 512   3                                              {
+ 513   4                                                      if(CheckIfDown())//判断是否能继续下降一格
+ 514   4                                                      {
+ 515   5                                                              DrawSign(Sign[0],0);
+ 516   5                                                              Sign[0].y+=3;
+ 517   5                                                              DrawSign(Sign[0],1);    
+ 518   5                                                      }
+ 519   4                                              }
+ 520   3                                              break;
+ 521   3                              case CHANGE:
+ 522   3                                              KeyBuffer=0;
+ 523   3                                              if((SysFlag&(1<<PAUSEFLAG))==0)
+ 524   3                                              {
+ 525   4                                                      if(CheckIfRoll())
+ 526   4                                                      {
+ 527   5                                                              DrawSign(Sign[0],0);
+ 528   5                                                              if(++Sign[0].change>3)
+ 529   5                                                                      Sign[0].change=0;
+ 530   5                                                              m=Sign[0].type*4+Sign[0].change;
+ 531   5                                                              Temp=(unsigned int)Block[m][0]<<8;
+ 532   5                                                              Temp=Temp|Block[m][1];
+ 533   5                                                              Sign[0].dat=Temp;
+ 534   5                                                              DrawSign(Sign[0],1);
+ 535   5                                                      }
+ 536   4                                              }
+ 537   3                                              break;
+ 538   3                              case PAUSE:
+ 539   3                                              KeyBuffer=0;
+ 540   3                                              SysFlag^=1<<PAUSEFLAG;
+ 541   3                                              if((SysFlag&(1<<PAUSEFLAG))==0)
+ 542   3                                              {
+ 543   4                                                      Lcd_WriteStr(1,3,"          ");
+ 544   4                                                      Lcd_WriteStr(1,3,"Playing");
+ 545   4                                              }
+ 546   3                                              else
+ 547   3                                              {
+ 548   4                                                      Lcd_WriteStr(1,3,"          ");
+ 549   4                                                      Lcd_WriteStr(1,3,"Pause");      
+ 550   4                                              }
+C51 COMPILER V9.01   GAME                                                                  01/19/2018 10:17:04 PAGE 10  
+
+ 551   3                                              break;
+ 552   3                          default:
+ 553   3                                              break;
+ 554   3                      }
+ 555   2                      if((SysFlag&(1<<PAUSEFLAG))!=0)
+ 556   2                              continue;
+ 557   2                      DelayGame(500);
+ 558   2                      if(++DelayCnt>=2*(11-Level))
+ 559   2                      {
+ 560   3                              DelayCnt=0;
+ 561   3                              if(CheckIfDown())//判断是否能继续下降一格
+ 562   3                              {
+ 563   4                                      DrawSign(Sign[0],0);
+ 564   4                                      Sign[0].y+=3;
+ 565   4                                      DrawSign(Sign[0],1);
+ 566   4                              }
+ 567   3                              else
+ 568   3                              {
+ 569   4                                      FixSign();
+ 570   4                                      DelFull();
+ 571   4                                      PrintScore();
+ 572   4                                      if(Score>=PASSSCORE)
+ 573   4                                      {
+ 574   5                                              SysFlag&=~(1<<DEADFLAG);
+ 575   5                                              break;//跳出玩游戏过程
+ 576   5                                      }
+ 577   4                                      SysFlag|=1<<NEWSIGNFLAG;//新的积木图标产生标志置1
+ 578   4                              }
+ 579   3                      }
+ 580   2              }
+ 581   1      }
+ 582          
+*** WARNING C290 IN LINE 227 OF ..\ASSIST\GAME.C: missing return value
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2971    ----
+   CONSTANT SIZE    =    150    ----
+   XDATA SIZE       =     27      28
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =     42    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

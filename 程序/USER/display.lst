@@ -1,0 +1,864 @@
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE DISPLAY
+OBJECT MODULE PLACED IN ..\OBJ\display.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\display.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXTE
+                    -ND PRINT(.\display.lst) OBJECT(..\OBJ\display.obj)
+
+line level    source
+
+   1          #include "display.h"
+   2          #include "function.h"
+   3          #include "record.h"
+   4          #include "sound.h"
+   5          
+   6          
+   7          
+   8          
+   9          uchar menuflag=0;
+  10          uchar musicSpeed=0;
+  11          uchar acPointerx=0;
+  12          uchar acPointery=0;
+  13          uchar selectSong=0;
+  14          
+  15          uchar mychange=1;         //ÕâÀïÓÃÈ«¾Ö±äÁ¿À´ÈÃÒô·û¶¯ÆðÀ´
+  16          
+  17          extern uchar ritem;
+  18          extern bit recordFlag;
+  19          
+  20          sbit blc = P3^2;  //ÎªÁË·½±ã¶ÁÈ¡ÊÇ·ñÓÐ°´¼ü°´ÏÂ
+  21          sbit H = P4^5;    //·´Ó¦¸ßÒôµÍÒôµÄ°´¼ü
+  22          sbit L = P4^4;
+  23          
+  24          //delay 2us
+  25          void delayus()
+  26          { _nop_();
+  27   1        _nop_();
+  28   1      }
+  29          
+  30          //delay a*1ms
+  31          void delayMs(uchar a)
+  32          {
+  33   1          uint i, j;
+  34   1          for(i=a; i>0;i--)
+  35   1              for(j=100;j>0;j--);
+  36   1      }
+  37          
+  38          
+  39          /*************
+  40          ²âÊÔLCDÊÇ·ñ´¦ÓÚÃ¦×´Ì¬
+  41          Èç¹ûÃ¦Ôò·µ»Ø0x80£¬·ñÔò·µ»Ø0
+  42          **************/
+  43          unsigned char Lcd_CheckBusy(void)
+  44          {
+  45   1          unsigned char Busy;
+  46   1              LcdData=0xff;
+  47   1          RS=0;
+  48   1          RW=1;
+  49   1          E=1;
+  50   1          _nop_(); 
+  51   1          Busy=LcdData&0x80;
+  52   1          E=0;
+  53   1          return Busy;
+  54   1      }
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 2   
+
+  55          
+  56          /*********************************
+  57          ÏòLCDÐ´Èë×Ö½ÚÊý¾Ý
+  58          **********************************/
+  59          void Lcd_WriteData(unsigned char Data)
+  60          {  
+  61   1              while(Lcd_CheckBusy());
+  62   1              RS=1;
+  63   1              RW=0;
+  64   1              E=0;
+  65   1              _nop_();  
+  66   1              _nop_(); 
+  67   1              LcdData=Data;
+  68   1              E=1;
+  69   1              _nop_();
+  70   1              _nop_();
+  71   1              E=0;
+  72   1      }
+  73          
+  74          /***********************************
+  75          ´ÓLCDÖÐ¶Á³öÊý¾Ý
+  76          ************************************/
+  77          unsigned char Lcd_ReadData(void)
+  78          {
+  79   1              unsigned char Temp;
+  80   1              while(Lcd_CheckBusy());
+  81   1              LcdData=0xff;
+  82   1              RS=1;
+  83   1              RW=1;
+  84   1              E=1;
+  85   1              _nop_();
+  86   1              Temp=LcdData;
+  87   1              E=0;
+  88   1              return Temp;
+  89   1      }
+  90          
+  91          /*************************************
+  92          ÏëLCDÖÐÐ´ÈëÖ¸Áî´úÂë
+  93          **************************************/
+  94          void Lcd_WriteCmd(unsigned char CmdCode)
+  95          {  
+  96   1              while(Lcd_CheckBusy());
+  97   1              RS=0;
+  98   1              RW=0;
+  99   1              E=0;
+ 100   1              _nop_();  
+ 101   1              _nop_();
+ 102   1              LcdData=CmdCode;
+ 103   1              _nop_(); 
+ 104   1              _nop_();
+ 105   1              E=1;
+ 106   1              _nop_();  
+ 107   1              _nop_();
+ 108   1              E=0;
+ 109   1      }
+ 110          
+ 111          void setPosition(uchar x, uchar y)
+ 112          {
+ 113   1          uchar p;
+ 114   1          switch(x%4)
+ 115   1          {
+ 116   2              case 0: p = 0x80; break; // starting address of line 1
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 3   
+
+ 117   2              case 1: p = 0x90; break; // line2
+ 118   2              case 2: p = 0x88; break; // line3
+ 119   2              case 3: p = 0x98; break; // line4
+ 120   2          }
+ 121   1          p+=y;
+ 122   1          Lcd_WriteCmd(p);
+ 123   1      }
+ 124          
+ 125          /*************************************
+ 126          ÏòLCDÖ¸¶¨ÆðÊ¼Î»ÖÃÐ´ÈëÒ»¸ö×Ö·û´®
+ 127          *************************************/
+ 128          void Lcd_WriteStr(unsigned char y,unsigned char x,unsigned char *Str)
+ 129          {
+ 130   1              if((y>3)||(x>7))
+ 131   1                      return;//Èç¹ûÖ¸¶¨Î»ÖÃ²»ÔÚÏÔÊ¾ÇøÓòÄÚ£¬Ôò²»×öÈÎºÎÐ´ÈëÖ±½Ó·µ»Ø
+ 132   1              EA=0;
+ 133   1              switch(y)
+ 134   1              {
+ 135   2                      case 0:
+ 136   2                                      Lcd_WriteCmd(0x80+x);
+ 137   2                                      break;
+ 138   2                      case 1:
+ 139   2                                      Lcd_WriteCmd(0x90+x);
+ 140   2                                      break;                          
+ 141   2                      case 2:
+ 142   2                                      Lcd_WriteCmd(0x88+x);
+ 143   2                                      break;
+ 144   2                      case 3:
+ 145   2                                      Lcd_WriteCmd(0x98+x);
+ 146   2                                      break;
+ 147   2              }
+ 148   1              while(*Str>0)
+ 149   1              {  
+ 150   2                      Lcd_WriteData(*Str);
+ 151   2                      Str++;     
+ 152   2              }
+ 153   1              EA=1;
+ 154   1      }
+ 155          
+ 156          /**************************************
+ 157          Îª¼ÓËÙÂß¼­ÔËËã¶øÉèÖÃµÄÑÚÂë±í£¬ÕâÊÇÒÔÎþÉü¿Õ¼ä¶ø»»È¡Ê±¼äµÄ°ì·¨
+ 158          ***************************************/
+ 159          code unsigned int LcdMaskTab[]={0x0001,0x0002,0x0004,0x0008,0x0010,0x0020,0x0040,0x0080,
+ 160                                                                   0x0100,0x0200,0x0400,0x0800,0x1000,0x2000,0x4000,0x8000};
+ 161          /***************************************
+ 162          ÏòLCDÖ¸¶¨×ø±êÐ´ÈëÒ»¸öÏóËØ,ÏóËØÑÕÉ«ÓÐÁ½ÖÖ£¬0´ú±í°×£¨ÎÞÏÔÊ¾£©£¬1´ú±íºÚ£¨ÓÐÏÔÊ¾£©
+ 163          ****************************************/
+ 164          void Lcd_PutPixel(unsigned char x,unsigned char y,unsigned char Color)
+ 165          {
+ 166   1              unsigned char z,w;
+ 167   1              unsigned int Temp;
+ 168   1              if(x>=128||y>=64)
+ 169   1                      return;
+ 170   1              Color=Color%2;
+ 171   1              w=15-x%16;//È·¶¨¶ÔÕâ¸ö×ÖµÄµÚ¶àÉÙÎ»½øÐÐ²Ù×÷
+ 172   1              x=x/16;//È·¶¨ÎªÒ»ÐÐÉÏµÄµÚ¼¸×Ö
+ 173   1      
+ 174   1              if(y<32) //Èç¹ûÎªÉÏÒ³
+ 175   1                      z=0x80;
+ 176   1              else     //·ñÔòÈç¹ûÎªÏÂÒ³
+ 177   1                      z=0x88;
+ 178   1      
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 4   
+
+ 179   1              y=y%32;
+ 180   1              EA=0;
+ 181   1              Lcd_WriteCmd(0x36);
+ 182   1              Lcd_WriteCmd(y+0x80);        //ÐÐµØÖ·
+ 183   1              Lcd_WriteCmd(x+z);     //ÁÐµØÖ· 
+ 184   1              Temp=Lcd_ReadData();//ÏÈ¿Õ¶ÁÒ»´Î
+ 185   1              Temp=(unsigned int)Lcd_ReadData()<<8;//ÔÙ¶Á³ö¸ß8Î»
+ 186   1              Temp|=(unsigned int)Lcd_ReadData();//ÔÙ¶Á³öµÍ8Î»
+ 187   1              EA=1;
+ 188   1              if(Color==1) //Èç¹ûÐ´ÈëÑÕÉ«Îª1
+ 189   1                      Temp|=LcdMaskTab[w];//ÔÚ´Ë´¦²é±íÊµÏÖ¼ÓËÙ
+ 190   1              else         //Èç¹ûÐ´ÈëÑÕÉ«Îª0
+ 191   1                      Temp&=~LcdMaskTab[w];//ÔÚ´Ë´¦²é±íÊµÏÖ¼ÓËÙ
+ 192   1              EA=0;
+ 193   1              Lcd_WriteCmd(y+0x80);        //ÐÐµØÖ·
+ 194   1              Lcd_WriteCmd(x+z);     //ÁÐµØÖ·
+ 195   1          Lcd_WriteData(Temp>>8);//ÏÈÐ´Èë¸ß8Î»£¬ÔÙÐ´ÈëµÍ8Î»
+ 196   1          Lcd_WriteData(Temp&0x00ff);
+ 197   1              Lcd_WriteCmd(0x30);
+ 198   1              EA=1;
+ 199   1      }
+ 200          
+ 201          /******************************************
+ 202          ´ÓLCDÖ¸¶¨×ø±ê¶ÁÈ¡ÏóËØÑÕÉ«Öµ
+ 203          *******************************************/
+ 204          unsigned char Lcd_ReadPixel(unsigned char x,unsigned char y)
+ 205          {
+ 206   1              unsigned char z,w;
+ 207   1              unsigned int Temp;
+ 208   1              if(x>=128||y>=64)
+ 209   1                      return 0;
+ 210   1              w=15-x%16;//È·¶¨¶ÔÕâ¸ö×ÖµÄµÚ¶àÉÙÎ»½øÐÐ²Ù×÷
+ 211   1              x=x/16;//È·¶¨ÎªÒ»ÐÐÉÏµÄµÚ¼¸×Ö
+ 212   1      
+ 213   1              if(y<32) //Èç¹ûÎªÉÏÒ³
+ 214   1                      z=0x80;
+ 215   1              else     //·ñÔòÈç¹ûÎªÏÂÒ³
+ 216   1                      z=0x88;
+ 217   1      
+ 218   1              y=y%32;
+ 219   1              EA=0;
+ 220   1              Lcd_WriteCmd(0x36);
+ 221   1              Lcd_WriteCmd(y+0x80);        //ÐÐµØÖ·
+ 222   1              Lcd_WriteCmd(x+z);     //ÁÐµØÖ· 
+ 223   1              Temp=Lcd_ReadData();//ÏÈ¿Õ¶ÁÒ»´Î
+ 224   1              Temp=(unsigned int)Lcd_ReadData()<<8;//ÔÙ¶Á³ö¸ß8Î»
+ 225   1              Temp|=(unsigned int)Lcd_ReadData();//ÔÙ¶Á³öµÍ8Î»
+ 226   1              EA=1;
+ 227   1              if((Temp&&LcdMaskTab[w])==0)
+ 228   1                      return 0;
+ 229   1              else
+ 230   1                      return 1;
+ 231   1      }
+ 232          
+ 233          /***************************************
+ 234          ÏòLCDÖ¸¶¨Î»ÖÃ»­Ò»Ìõ³¤¶ÈÎªLengthµÄÖ¸¶¨ÑÕÉ«µÄË®Æ½Ïß
+ 235          ****************************************/
+ 236          void Lcd_HoriLine(unsigned char x,unsigned char y,unsigned char Length,unsigned char Color)
+ 237          {
+ 238   1              unsigned char i;
+ 239   1              if(Length==0)
+ 240   1                      return;
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 5   
+
+ 241   1              for(i=0;i<Length;i++)
+ 242   1              {
+ 243   2                      Lcd_PutPixel(x+i,y,Color);
+ 244   2              }
+ 245   1      }
+ 246          
+ 247          /***************************************
+ 248          ÏòLCDÖ¸¶¨Î»ÖÃ»­Ò»Ìõ³¤¶ÈÎªLengthµÄÖ¸¶¨ÑÕÉ«µÄ´¹Ö±Ïß
+ 249          ****************************************/
+ 250          void Lcd_VertLine(unsigned char x,unsigned char y,unsigned char Length,unsigned char Color)
+ 251          {
+ 252   1              unsigned char i;
+ 253   1              if(Length==0)
+ 254   1                      return;
+ 255   1              for(i=0;i<Length;i++)
+ 256   1              {
+ 257   2                      Lcd_PutPixel(x,y+i,Color);
+ 258   2              }
+ 259   1      }
+ 260          
+ 261          /*******************************************
+ 262          ÏòLCDÖ¸¶¨ÆðÊ¼×ø±êºÍ½áÊø×ø±êÖ®¼ä»­Ò»ÌõÖ¸¶¨ÑÕÉ«µÄÖ±Ïß
+ 263          ********************************************/
+ 264          void Lcd_Line(unsigned char x1,unsigned char y1,unsigned char x2,unsigned char y2,unsigned char Color)
+ 265          {
+ 266   1              unsigned int x,y; 
+ 267   1              unsigned int d_x,d_y;//d_x=x2-x1;d_y=y2-y1;
+ 268   1              int err=0;
+ 269   1              unsigned char temp=0;
+ 270   1              if(y2<y1)
+ 271   1              {
+ 272   2                      x=x1;
+ 273   2                      y=y1;
+ 274   2                      x1=x2;
+ 275   2                      y1=y2;
+ 276   2                      x2=x;
+ 277   2                      y2=y;
+ 278   2              }
+ 279   1              d_y=y2-y1;
+ 280   1              if (d_y==0)
+ 281   1              {
+ 282   2                      if (x1>x2) 
+ 283   2                      {
+ 284   3                              x=x1;
+ 285   3                              x1=x2;
+ 286   3                              x2=x;
+ 287   3                      }
+ 288   2                      for (x=x1;x<=x2;x++) 
+ 289   2                              Lcd_PutPixel(x,y1,Color);
+ 290   2              }
+ 291   1      
+ 292   1              else
+ 293   1              {
+ 294   2                      if(x2>=x1)
+ 295   2                      {
+ 296   3                              temp=1;
+ 297   3                              d_x=x2-x1;
+ 298   3                      }
+ 299   2                      else 
+ 300   2                              d_x=x1-x2;
+ 301   2                      x=x1;
+ 302   2                      y=y1;
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 6   
+
+ 303   2                      Lcd_PutPixel(x,y,1);
+ 304   2      
+ 305   2                      if(temp&&(d_y<=d_x))
+ 306   2                              while(x!=x2)
+ 307   2                              {
+ 308   3                                      if(err<0)
+ 309   3                                      {
+ 310   4                                              x=x+1;
+ 311   4                                              err=err+(y2-y);
+ 312   4                                      }
+ 313   3                                      else 
+ 314   3                                      {
+ 315   4                                              x=x+1;
+ 316   4                                              y=y+1;
+ 317   4                                              err=err+(y2-y)-(x2-x);
+ 318   4                                      }
+ 319   3                                      Lcd_PutPixel(x,y,Color);
+ 320   3                              }
+ 321   2      
+ 322   2                      else if(temp&&(d_y>d_x))
+ 323   2                              while(y!=y2)
+ 324   2                              {
+ 325   3                                      d_x=x2-x;
+ 326   3                                      d_y=y2-y; 
+ 327   3                                      if(err<0)
+ 328   3                                      {
+ 329   4                                              x=x+1;
+ 330   4                                              y=y+1;
+ 331   4                                              err=err+d_y-d_x;
+ 332   4                                      }
+ 333   3                                      else 
+ 334   3                                      {
+ 335   4                                              y=y+1;
+ 336   4                                              err=err-d_x;
+ 337   4                                      }
+ 338   3                                      Lcd_PutPixel(x,y,Color);
+ 339   3      
+ 340   3                              }
+ 341   2      
+ 342   2                      else if(!temp&&(d_y<=d_x))
+ 343   2                              while(x!=x2)
+ 344   2                              {
+ 345   3                                      d_x=x-x2;
+ 346   3                                      d_y=y2-y; 
+ 347   3                                      if(err<0)
+ 348   3                                      {
+ 349   4                                              x=x-1;
+ 350   4                                              err=err+d_y;
+ 351   4                                      }
+ 352   3                                      else 
+ 353   3                                      {
+ 354   4                                              x=x-1;
+ 355   4                                              y=y+1;
+ 356   4                                              err=err+d_y-d_x;
+ 357   4                                      }
+ 358   3                                      Lcd_PutPixel(x,y,Color);
+ 359   3                              }
+ 360   2      
+ 361   2                      else if(!temp &&(d_y>d_x))
+ 362   2                              while(y!=y2)
+ 363   2                              {
+ 364   3                                      d_x=x-x2;
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 7   
+
+ 365   3                                      d_y=y2-y; 
+ 366   3                                      if(err<0)
+ 367   3                                      {
+ 368   4                                              x=x-1;
+ 369   4                                              y=y+1;
+ 370   4                                              err=err+d_y-d_x;
+ 371   4                                      }
+ 372   3                                      else 
+ 373   3                                      {
+ 374   4                                              y=y+1;
+ 375   4                                              err=err-d_x;
+ 376   4                                      }
+ 377   3                                      Lcd_PutPixel(x,y,Color);
+ 378   3                              }
+ 379   2              }
+ 380   1      }
+ 381          
+ 382          /*******************************************
+ 383          ÏòLCDÖ¸¶¨×óÉÏ½Ç×ø±êºÍÓÒÏÂ½Ç×ø±ê»­Ò»¸öÖ¸¶¨ÑÕÉ«µÄ¾ØÐÎ
+ 384          ********************************************/
+ 385          void Lcd_Rectangle(unsigned char x0,unsigned char y0,unsigned char x1,unsigned char y1,unsigned char Color
+             -)
+ 386          {
+ 387   1              unsigned char Temp;
+ 388   1              if(x0>x1)
+ 389   1              {
+ 390   2                      Temp=x0;
+ 391   2                      x0=x1;
+ 392   2                      x1=Temp;
+ 393   2              }       
+ 394   1              if(y0>y1)
+ 395   1              {
+ 396   2                      Temp=y0;
+ 397   2                      y0=y1;
+ 398   2                      y1=Temp;
+ 399   2              }
+ 400   1              Lcd_VertLine(x0,y0,y1-y0+1,Color);
+ 401   1              Lcd_VertLine(x1,y0,y1-y0+1,Color);
+ 402   1              Lcd_HoriLine(x0,y0,x1-x0+1,Color);
+ 403   1              Lcd_HoriLine(x0,y1,x1-x0+1,Color);      
+ 404   1      }
+ 405          
+ 406          /****************************************
+ 407          ¶Ô³Æ·¨»­Ô²µÄ8¸ö¾µÏñµã
+ 408          *****************************************/
+ 409          void CircleDot(unsigned char x,unsigned char y,char xx,char yy,unsigned char Color)//ÄÚ²¿º¯Êý£¬¶Ô³Æ·¨»­Ô²µ
+             -Ä8¸ö¾µÏñµã
+ 410          {
+ 411   1              Lcd_PutPixel((x+yy),(y+xx),Color);//µÚ 1 ¸ö 8 ·ÖÔ²
+ 412   1              Lcd_PutPixel((x+xx),(y+yy),Color);//µÚ 2 ¸ö 8 ·ÖÔ²
+ 413   1              Lcd_PutPixel((x-xx),(y+yy),Color);//µÚ 3 ¸ö 8 ·ÖÔ²
+ 414   1              Lcd_PutPixel((x-yy),(y+xx),Color);//µÚ 4 ¸ö 8 ·ÖÔ²
+ 415   1              Lcd_PutPixel((x-yy),(y-xx),Color);//µÚ 5 ¸ö 8 ·ÖÔ²
+ 416   1              Lcd_PutPixel((x-xx),(y-yy),Color);//µÚ 6 ¸ö 8 ·ÖÔ²
+ 417   1              Lcd_PutPixel((x+xx),(y-yy),Color);//µÚ 7 ¸ö 8 ·ÖÔ²
+ 418   1              Lcd_PutPixel((x+yy),(y-xx),Color);//µÚ 8 ¸ö 8 ·ÖÔ²
+ 419   1      }
+ 420          
+ 421          /******************************************
+ 422          ÏòLCDÖ¸¶¨Ô²ÐÄ×ø±ê»­Ò»¸ö°ë¾¶ÎªrµÄÖ¸¶¨ÑÕÉ«µÄÔ²
+ 423          *******************************************/
+ 424          void Lcd_Circle(unsigned char x,unsigned char y,unsigned char r,unsigned char Color)//ÖÐµã·¨»­Ô²
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 8   
+
+ 425          {//ÖÐµã·¨»­Ô²
+ 426   1              unsigned char xx,yy;
+ 427   1              char deltax,deltay,d;
+ 428   1              xx=0;
+ 429   1              yy=r;
+ 430   1              deltax=3;
+ 431   1              deltay=2-r-r;
+ 432   1              d=1-r;
+ 433   1              CircleDot(x,y,xx,yy,Color);//¶Ô³Æ·¨»­Ô²µÄ8¸ö¾µÏñµã
+ 434   1              while (xx<yy)
+ 435   1              {
+ 436   2                      if (d<0)
+ 437   2                      {
+ 438   3                              d+=deltax;
+ 439   3                              deltax+=2;
+ 440   3                              xx++;
+ 441   3                      }
+ 442   2                      else
+ 443   2                      {
+ 444   3                              d+=deltax+deltay;
+ 445   3                              deltax+=2;
+ 446   3                              deltay+=2;
+ 447   3                              xx++;
+ 448   3                              yy--;
+ 449   3                      }
+ 450   2                      CircleDot(x,y,xx,yy,Color);//¶Ô³Æ·¨»­Ô²µÄ8¸ö¾µÏñµã
+ 451   2              }
+ 452   1      }
+ 453          
+ 454          /*****************************************
+ 455          Çå³ýLcdÈ«ÆÁ£¬Èç¹ûÇå³ýÄ£Ê½ModeÎª0£¬ÔòÎªÈ«ÆÁÇå³ýÎªÑÕÉ«0£¨ÎÞÈÎºÎÏÔÊ¾£©
+ 456          ·ñÔòÎªÈ«ÆÁÇå³ýÎªÑÕÉ«1(È«ÆÁÌî³äÏÔÊ¾)
+ 457          ******************************************/
+ 458          void Lcd_Clear(unsigned char Mode)
+ 459          {
+ 460   1              unsigned char x,y,ii;
+ 461   1              unsigned char Temp;
+ 462   1              if(Mode%2==0)
+ 463   1                      Temp=0x00;
+ 464   1              else
+ 465   1                      Temp=0xff;
+ 466   1              Lcd_WriteCmd(0x36);//À©³äÖ¸Áî »æÍ¼ÏÔÊ¾
+ 467   1              for(ii=0;ii<9;ii+=8)   
+ 468   1                      for(y=0;y<0x20;y++)     
+ 469   1                              for(x=0;x<8;x++)
+ 470   1                              {       
+ 471   2                                      EA=0;
+ 472   2                                      Lcd_WriteCmd(y+0x80);        //ÐÐµØÖ·
+ 473   2                                      Lcd_WriteCmd(x+0x80+ii);     //ÁÐµØÖ·     
+ 474   2                                      Lcd_WriteData(Temp); //Ð´Êý¾Ý D15£­D8 
+ 475   2                                      Lcd_WriteData(Temp); //Ð´Êý¾Ý D7£­D0 
+ 476   2                                      EA=1;
+ 477   2                              }
+ 478   1              Lcd_WriteCmd(0x30);
+ 479   1      }
+ 480          
+ 481          /****************************************
+ 482          LCD³õÊ¼»¯
+ 483          *****************************************/
+ 484          void Lcd_Reset()
+ 485          {  
+ 486   1              PSB=1;
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 9   
+
+ 487   1              Lcd_WriteCmd(0x30);       //Ñ¡Ôñ»ù±¾Ö¸Áî¼¯
+ 488   1              Lcd_WriteCmd(0x0c);       //¿ªÏÔÊ¾(ÎÞÓÎ±ê¡¢²»·´°×)
+ 489   1              Lcd_WriteCmd(0x01);       //Çå³ýÏÔÊ¾£¬²¢ÇÒÉè¶¨µØÖ·Ö¸ÕëÎª00H
+ 490   1              Lcd_WriteCmd(0x06);       //Ö¸¶¨ÔÚ×ÊÁÏµÄ¶ÁÈ¡¼°Ð´ÈëÊ±£¬Éè¶¨ÓÎ±êµÄÒÆ¶¯·½Ïò¼°Ö¸¶¨ÏÔÊ¾µÄÒÆÎ»
+ 491   1      }
+ 492          
+ 493          /****************************************
+ 494          //ÉèÖÃÏÔÊ¾ÆÁGDRAMÎ»ÖÃ
+ 495          *****************************************/
+ 496          void Lcd_Cursor(uchar a, uchar b)
+ 497          {
+ 498   1              Lcd_WriteCmd(0x34);                       //¹Ø±ÕÍ¼ÐÎÏÔÊ¾        
+ 499   1              Lcd_WriteCmd(b);                          //ÏÈÐ´´¹Ö±µØÖ·
+ 500   1              Lcd_WriteCmd(a);                          //ÔÙÐ´Ë®Æ½µØÖ·
+ 501   1      }
+ 502          
+ 503          /****************************************
+ 504          //ÏÔÊ¾Í¼Æ¬º¯Êý
+ 505          *****************************************/
+ 506          void show_Pic(uchar x, uchar y, uchar clong, uchar hight, uchar *Icon)
+ 507          {                                        
+ 508   1              uchar i, j;
+ 509   1              for(i=0; i<hight; i++)           //×ÖÄ£°´ÐÐÒ»´ÎÐ´Èë
+ 510   1              {
+ 511   2                      if(y+i<32)                                //ÅÐ¶ÏÉÏÏÂÆÁ
+ 512   2                              {Lcd_Cursor(0x80+x/16,0x80+y+i);}                       
+ 513   2                      else
+ 514   2                              {Lcd_Cursor(0x88+x/16,0x80-32+y+i);}    
+ 515   2      
+ 516   2                      for(j=0; j<clong; j++)
+ 517   2                              {Lcd_WriteData(Icon[clong*i+j]);}       
+ 518   2              
+ 519   2              }
+ 520   1                      Lcd_WriteCmd(0x36);
+ 521   1      
+ 522   1      }
+ 523          //initialize the LCD
+ 524          void init()
+ 525          {
+ 526   1          PSB = 1; //parallel
+ 527   1          Lcd_WriteCmd(0x30); //basic commands
+ 528   1          delayMs(10);
+ 529   1          Lcd_WriteCmd(0x0f); // display on, ac on
+ 530   1          delayMs(10);
+ 531   1          Lcd_WriteCmd(0x01); // clear screen
+ 532   1          delayMs(10);
+ 533   1      }
+ 534          
+ 535          void menu2change(uchar x)
+ 536          {
+ 537   1          uchar key,note;
+ 538   1              key=(x-1)/7;
+ 539   1              note=(x-1)%7;
+ 540   1              mychange=~mychange;
+ 541   1       
+ 542   1        
+ 543   1              if(x==0)
+ 544   1                      {
+ 545   2                       /*writeString(data2no);
+ 546   2                       setPosition(3,3);
+ 547   2                       writeString(data2no);
+ 548   2                       setPosition(3,5);*/
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 10  
+
+ 549   2                      }
+ 550   1              else{
+ 551   2              if(key==1)
+ 552   2                  Lcd_WriteStr(2,3,"ÖÐ");
+ 553   2              else if(key==2)
+ 554   2                  Lcd_WriteStr(2,3,"¸ß");
+ 555   2              else if(key==0)
+ 556   2                      Lcd_WriteStr(2,3,"µÍ");
+ 557   2                      if(note==0)
+ 558   2                              Lcd_WriteStr(3,3,"Do");
+ 559   2                      else if(note==1)
+ 560   2                              Lcd_WriteStr(3,3,"Re");
+ 561   2                      else if(note==2)
+ 562   2                              Lcd_WriteStr(3,3,"Mi");
+ 563   2                      else if(note==3)
+ 564   2                              Lcd_WriteStr(3,3,"Fa");
+ 565   2                      else if(note==4)
+ 566   2                              Lcd_WriteStr(3,3,"So");
+ 567   2                      else if(note==5)
+ 568   2                              Lcd_WriteStr(3,3,"La");
+ 569   2                      else if(note==6)
+ 570   2                              Lcd_WriteStr(3,3,"Si");
+ 571   2      
+ 572   2              if(mychange==1)
+ 573   2                      Lcd_WriteStr(7,3,0x0d0e);//ÕâÀï³¢ÊÔ¼ÓÒô·û
+ 574   2              else
+ 575   2                      Lcd_WriteStr(7,3,0x0e0d);
+ 576   2              
+ 577   2              }          
+ 578   1              //      setPosition(0,0);                                                                                  
+ 579   1      }
+ 580          
+ 581          
+ 582          void menu9()
+ 583          {
+ 584   1              Lcd_WriteCmd(0x01);  
+ 585   1              Lcd_WriteStr(0,0,"ÇëÑ¡ÔñÓÎÏ·ÄÑ¶È");
+ 586   1              Lcd_WriteStr(1,0,"* À§ÄÑ");
+ 587   1              Lcd_WriteStr(2,0,"* ÖÐµÈ");
+ 588   1              Lcd_WriteStr(3,0,"* ÈÝÒ×");
+ 589   1              setPosition(1,0);
+ 590   1              acPointery=1;
+ 591   1      }
+ 592          
+ 593          void menu6()
+ 594          {
+ 595   1          Lcd_WriteCmd(0x01);  
+ 596   1              Lcd_WriteStr(0,0,"* Â¼ÒôÒ»");
+ 597   1              Lcd_WriteStr(1,0,"* Â¼Òô¶þ");
+ 598   1              setPosition(0,0);
+ 599   1              acPointery=0;
+ 600   1      }
+ 601          
+ 602          
+ 603          //¾ØÕó¼üÅÌ²Ëµ¥
+ 604          void menu5()
+ 605          {
+ 606   1          Lcd_WriteCmd(0x01);  
+ 607   1          Lcd_WriteStr(0,0,"ÏÖÔÚ¿ªÊ¼µ¯×à°É");
+ 608   1              Lcd_WriteStr(1,0,"°´×óÉÏ½Ç°´¼üÍË³ö");
+ 609   1              setPosition(3,7);
+ 610   1              Lcd_WriteData(0x0E);
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 11  
+
+ 611   1              setPosition(3,7);
+ 612   1      }
+ 613          
+ 614          //Â¼Òô²Ëµ¥
+ 615          void menu4()
+ 616          {
+ 617   1          Lcd_WriteCmd(0x01);  
+ 618   1              Lcd_WriteStr(0,0,"ÇëËæÒâµ¯×à°É£¡");
+ 619   1              Lcd_WriteStr(1,0,"°´×óÉÏ½Ç°´¼üÍê³É");
+ 620   1              setPosition(3,7);
+ 621   1              Lcd_WriteData(0x0E);
+ 622   1              setPosition(3,7);
+ 623   1      }
+ 624          
+ 625          //Ñ¡ÔñÄÚÖÃ¸èÇú²Ëµ¥
+ 626          void menu3()
+ 627          {
+ 628   1          Lcd_WriteCmd(0x01);  
+ 629   1              Lcd_WriteStr(0,0,"* »¶ÀÖËÌ");
+ 630   1              Lcd_WriteStr(1,0,"* Ìì¿ÕÖ®³Ç");
+ 631   1              setPosition(0,0);
+ 632   1              acPointerx=0;
+ 633   1              acPointery=0;
+ 634   1      }
+ 635          
+ 636          //¸èÇúÕýÔÚ²¥·Å
+ 637          void menu31()
+ 638          {
+ 639   1          Lcd_WriteCmd(0x01);  
+ 640   1              Lcd_WriteStr(0,0,"¸èÇú²¥·ÅÖÐ");
+ 641   1          Lcd_WriteStr(1,0,"ÇëÉÔºó²Ù×÷¡­¡­");
+ 642   1              setPosition(3,7);
+ 643   1              Lcd_WriteData(0x0E);
+ 644   1              setPosition(3,7);
+ 645   1      }
+ 646          
+ 647          //µ¯×à²Ëµ¥
+ 648          void menu2()
+ 649          {
+ 650   1          Lcd_WriteCmd(0x01);  
+ 651   1              Lcd_WriteStr(0,0,"ÏÖÔÚ¿ªÊ¼µ¯×à°É");
+ 652   1              Lcd_WriteStr(1,0,"°´×óÉÏ½Ç°´¼üÍË³ö");
+ 653   1              Lcd_WriteStr(2,0,"Òô½×£º  ");
+ 654   1              setPosition(3,7);
+ 655   1              Lcd_WriteData(0x0E);
+ 656   1      //      writeString(data23);
+ 657   1      //      setPosition(4,0);
+ 658   1      }
+ 659          
+ 660          //×Ó²Ëµ¥Ñ¡Ôñ£¬²¢·ÇÕæµÄ²Ëµ¥;Í¨¹ýÅÐ¶ÏmenuflagÀ´¾ö¶¨½øÈëÄÄÒ»²ã²Ëµ¥
+ 661          void menu1()
+ 662          {
+ 663   1               menuflag++; //³õÊ¼ÊÇ0£¬Òª++
+ 664   1           switch(menuflag)
+ 665   1               {
+ 666   2                      case(2): menu2(); break;
+ 667   2                      case(3): menu3(); break;
+ 668   2                      case(4): menu4(); break;
+ 669   2                      case(5): menu5(); break;
+ 670   2                      case(6): menu6(); break;
+ 671   2                      case(9): menu9(); break;
+ 672   2               }
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 12  
+
+ 673   1      
+ 674   1      }
+ 675          
+ 676          //Ö÷²Ëµ¥
+ 677          void menu0()
+ 678          {
+ 679   1          if(acPointery<4)
+ 680   1              {
+ 681   2          Lcd_WriteCmd(0x01);
+ 682   2          Lcd_WriteStr(0,0,"* ×Ô¼ºµ¯×àÒôÀÖ");
+ 683   2              Lcd_WriteStr(1,0,"* ²¥·ÅÏÖÓÐ¸èÇú");
+ 684   2              Lcd_WriteStr(2,0,"* ÎÒÏëÒªÂ¼Òô£¡");
+ 685   2              Lcd_WriteStr(3,0,"* ¾ØÕó¼üÅÌµ¯×à");
+ 686   2              Lcd_WriteCmd(0x80);
+ 687   2              }else
+ 688   1              {
+ 689   2              Lcd_WriteCmd(0x01);
+ 690   2          Lcd_WriteStr(0,0,"* ²¥·ÅÒÑÓÐÂ¼Òô");
+ 691   2              Lcd_WriteStr(1,0,"* ¶íÂÞË¹·½¿é");
+ 692   2              Lcd_WriteStr(2,0,"* Ñ§Ï°¹¦ÄÜ");
+ 693   2              Lcd_WriteStr(3,0,"* ½Ú×à´óÊ¦£¡");
+ 694   2              }
+ 695   1      }
+ 696          
+ 697          //°´¼üÒÔºó¶Ô²Ëµ¥µÄ¶¯×÷º¯Êý
+ 698          void menuKey(uchar key)
+ 699          {         
+ 700   1             if(menuflag==0)   //Í¨¹ý×ÛºÏÅÐ¶ÏmenuflagºÍµ±Ç°°´ÏÂµÄ¼üÀ´È·¶¨½øÒ»²½µÄ¶¯×÷
+ 701   1            {
+ 702   2              switch(key)
+ 703   2                              {
+ 704   3                              //      case(6): acPointerx++; setPosition(acPointery, acPointerx); break;
+ 705   3                                      case(11): 
+ 706   3                                      if((acPointery>3)&&(acPointery<=7))
+ 707   3                                      {
+ 708   4                                      acPointery--;
+ 709   4                                      menu0();
+ 710   4                                      setPosition(acPointery, acPointerx); break;
+ 711   4                                      }
+ 712   3                                      if(acPointery>0)                                 //·ÀÖ¹²Ëµ¥Ô½¼¶µÄ´¦Àí
+ 713   3                                      acPointery=acPointery-1; setPosition(acPointery, acPointerx); break;      //acpointerÊÇÖ¸Ê¾µ±Ç°¹â±êÎ»ÖÃµÄ
+             -È«¾Ö±äÁ¿
+ 714   3                                      case(10): menuflag++; menuflag+=acPointery; setPosition(0, 0);menu1(); break;
+ 715   3                                      case(9):
+ 716   3                                      if((acPointery>=3)&&(acPointery<7))
+ 717   3                                      {
+ 718   4                                      acPointery++;
+ 719   4                                      menu0();
+ 720   4                                      setPosition(acPointery, acPointerx); break;
+ 721   4                                      }
+ 722   3                                      if(acPointery<3)
+ 723   3                                  acPointery++; setPosition(acPointery, acPointerx); break;
+ 724   3                              //      case(14): acPointerx=acPointerx-1; setPosition(acPointery, acPointerx); break;
+ 725   3                              }
+ 726   2                }     else if(menuflag==2)
+ 727   1                {
+ 728   2                       if(key==15)             //ÍË³öµ½Ö÷²Ëµ¥
+ 729   2                               {
+ 730   3                                   menuflag=0;
+ 731   3                                       menu0();
+ 732   3                                       setPosition(0,0);
+ 733   3                                       acPointerx=0;
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 13  
+
+ 734   3                           acPointery=0;
+ 735   3                               }
+ 736   2                }     else if(menuflag==3)
+ 737   1                {
+ 738   2                   switch(key)
+ 739   2                              {                       //ÕâÀïÊ¹ÓÃÁËselectsongÕâ¸öÈ«¾Ö±äÁ¿À´°ïÖúÅÐ¶ÏÒª²¥·ÅÄÄÊ×¸è£¬Ò»¿ªÊ¼Îª0£¬Ñ¡ÔñÁËÒÔºó»á±ä³ÉÏàÓ¦µÄ¸èµÄ±àºÅ
+ 740   3                              //      case(6): acPointerx++; setPosition(acPointery, acPointerx); break;        
+ 741   3                                      case(11): 
+ 742   3                                      if(acPointery>0)acPointery=acPointery-1; setPosition(acPointery, acPointerx); break;
+ 743   3                                      case(10): selectSong++; selectSong+=acPointery; menu31(); break;
+ 744   3                                      case(9): 
+ 745   3                                      if(acPointery<1)acPointery++; setPosition(acPointery, acPointerx); break;
+ 746   3                                      case(15):menuflag=0; menu0();acPointerx=0; acPointery=0; selectSong==0;break;
+*** WARNING C275 IN LINE 746 OF ..\ASSIST\DISPLAY.C: expression with possibly no effect
+ 747   3                              //      case(14): acPointerx=acPointerx-1; setPosition(acPointery, acPointerx); break;
+ 748   3                              } 
+ 749   2                }     else if(menuflag==4)                    //Â¼Òô
+ 750   1                {
+ 751   2                    if(key==15)
+ 752   2                               {
+ 753   3                                   menuflag=0;
+ 754   3                                       menu0();
+ 755   3                                       acPointerx=0;
+ 756   3                           acPointery=0;
+ 757   3                                       recordFlag=~recordFlag;                 //Â¼Ò»Ê×£¬±êÖ¾Î»·´×ª
+ 758   3                                       ritem=0;
+ 759   3                               }
+ 760   2                } else if (menuflag==5)       //¾ØÕó¼üÅÌµ¯×à
+ 761   1                {
+ 762   2                    switch(key)                       //ÖÐ¶ÏÖÐÖ±½ÓËã³ö¼üÖµ£¬·¢Éù
+ 763   2                        {
+ 764   3                            case(15): menuflag=0; menu0();acPointerx=0; acPointery=0; break;
+ 765   3                                case(0): menu2change(14+7*H-7*L);while(blc==0){Sound(14+7*H-7*L);P2=0x0f;}; break;
+ 766   3                                case(1): menu2change(13+7*H-7*L);while(blc==0){Sound(13+7*H-7*L);P2=0x0f;}; break;
+ 767   3                                case(2): menu2change(12+7*H-7*L);while(blc==0){Sound(12+7*H-7*L);P2=0x0f;}; break;
+ 768   3                                case(3): menu2change(11+7*H-7*L);while(blc==0){Sound(11+7*H-7*L);P2=0x0f;}; break;
+ 769   3                                case(4): menu2change(10+7*H-7*L);while(blc==0){Sound(10+7*H-7*L);P2=0x0f;}; break;
+ 770   3                                case(5): menu2change(9+7*H-7*L);      while(blc==0){Sound(9+7*H-7*L);P2=0x0f;}; break;
+ 771   3                                case(6): menu2change(8+7*H-7*L);      while(blc==0){Sound(8+7*H-7*L);P2=0x0f;}; break;
+ 772   3                        }
+ 773   2                }else if(menuflag==6)                  //Â¼Òô²¥·Å
+ 774   1                {
+ 775   2                      switch(key)
+ 776   2                              {
+ 777   3                                  case(15): menuflag=0; acPointerx=0; acPointery=0; menu0(); break;
+ 778   3                                      case(11): acPointery=0; setPosition(acPointery, acPointerx); break;
+ 779   3                                      case(10): menu31();output(acPointery);menu6(); break;
+ 780   3                                      case(9): acPointery=1; setPosition(acPointery, acPointerx); break;
+ 781   3                              }
+ 782   2      
+ 783   2                }else if(menuflag==7)           //¶íÂÞË¹·½¿é
+ 784   1                {
+ 785   2                              switch(key)
+ 786   2                              {
+ 787   3                                  case(15): menuflag=0; acPointerx=0; acPointery=0; break;
+ 788   3                              }        
+ 789   2                }else if(menuflag==8)                 //Ñ§Ï°¹¦ÄÜ
+ 790   1                {
+ 791   2                      if(key==15)
+ 792   2                              {
+ 793   3                                  menuflag=0; acPointerx=0; acPointery=0; 
+ 794   3                              }
+C51 COMPILER V9.01   DISPLAY                                                               01/19/2018 10:17:04 PAGE 14  
+
+ 795   2                }else if(menuflag==9)           //½Ú×à´óÊ¦
+ 796   1                {
+ 797   2                              switch(key)
+ 798   2                              {                       //ÕâÀïÊ¹ÓÃÁËmusicSPeedÕâ¸öÈ«¾Ö±äÁ¿À´°ïÖúÅÐ¶ÏÓÎÏ·ËÙ¶È£¬Ò»¿ªÊ¼Îª0£¬Ñ¡ÔñÁËÒÔºó»á±ä³ÉÏàÓ¦µÄ¸èµÄËÙ¶È
+ 799   3                              //      case(6): acPointerx++; setPosition(acPointery, acPointerx); break;        
+ 800   3                                      case(11): 
+ 801   3                                      if(acPointery>1)acPointery=acPointery-1; setPosition(acPointery, acPointerx); break;
+ 802   3                                      case(10): musicSpeed=acPointery; break;
+ 803   3                                      case(9): 
+ 804   3                                      if(acPointery<3)acPointery++; setPosition(acPointery, acPointerx); break;
+ 805   3                                      case(15):menuflag=0; menu0();acPointerx=0; acPointery=0; selectSong==0;break;
+*** WARNING C275 IN LINE 805 OF ..\ASSIST\DISPLAY.C: expression with possibly no effect
+ 806   3                              //      case(14): acPointerx=acPointerx-1; setPosition(acPointery, acPointerx); break;
+ 807   3                              }
+ 808   2                }
+ 809   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   4276    ----
+   CONSTANT SIZE    =    347    ----
+   XDATA SIZE       =      6      60
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

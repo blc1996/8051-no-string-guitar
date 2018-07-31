@@ -1,0 +1,59 @@
+C51 COMPILER V9.01   PIANO                                                                 01/19/2018 10:17:04 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE PIANO
+OBJECT MODULE PLACED IN ..\OBJ\piano.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\piano.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXTEND
+                    - PRINT(.\piano.lst) OBJECT(..\OBJ\piano.obj)
+
+line level    source
+
+   1          #include "piano.h"
+   2          #include "STC15F2K60S2.h"
+   3          #include "delay.h"
+   4          
+   5          sbit k1 = P1^1;
+   6          sbit k2 = P1^2;
+   7          sbit k3 = P1^3;
+   8          sbit k4 = P1^4;
+   9          sbit k5 = P1^5;
+  10          sbit k6 = P1^6;
+  11          sbit k7 = P1^7;
+  12          sbit k0 = P1^0;
+  13          sbit high = P4^5;
+  14          sbit low  = P4^4;
+  15          
+  16          //琴弦函数，判断是那根琴弦按下
+  17          //对于不同的高低音返回不一样的值，最终是能返回高中低各7音
+  18          uchar Piano(void)
+  19          {
+  20   1              if(k1==0||k2==0||k3==0||k4==0||k5==0||k6==0||k7==0||k0==0)
+  21   1              {
+  22   2      
+  23   2                                 if(k0==0)return 27;
+  24   2                                 if(k1==0)return  (8+7*high-7*low);
+  25   2                                 if(k2==0)return  (9+7*high-7*low);
+  26   2                                 if(k3==0)return (10+7*high-7*low);
+  27   2                                 if(k4==0)return (11+7*high-7*low);
+  28   2                                 if(k5==0)return (12+7*high-7*low);
+  29   2                                 if(k6==0)return (13+7*high-7*low);
+  30   2                                 if(k7==0)return (14+7*high-7*low);
+  31   2                         
+  32   2              }  
+  33   1              return 0;
+  34   1      }
+  35          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    151    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

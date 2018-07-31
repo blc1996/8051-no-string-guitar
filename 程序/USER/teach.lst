@@ -1,0 +1,209 @@
+C51 COMPILER V9.01   TEACH                                                                 01/19/2018 10:17:05 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE TEACH
+OBJECT MODULE PLACED IN ..\OBJ\teach.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\teach.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXTEND
+                    - PRINT(.\teach.lst) OBJECT(..\OBJ\teach.obj)
+
+line level    source
+
+   1          #include "display.h"
+   2          #include "teach.h"
+   3          #include "delay.h"
+   4          #include "piano.h"
+   5          #include "sound.h"
+   6          #include "music.h"
+   7          
+   8          uchar code Music_Teach[] = {3,2,3,2,4,2,5,2,5,2,4,2,3,2,2,2,
+   9                                                              1,2,1,2,2,2,3,2,3,3,2,1,2,1,0,0,0,0,0};
+  10          
+  11          
+  12          void Yin1(uchar o)
+  13          {
+  14   1              switch(o)
+  15   1              {
+  16   2                      case 0: Lcd_WriteStr(2,6,"    ");break;
+  17   2                      case 1: Lcd_WriteStr(2,6,"中Do");break;
+  18   2                      case 2: Lcd_WriteStr(2,6,"中Re");break;
+  19   2                      case 3: Lcd_WriteStr(2,6,"中Mi");break;
+  20   2                      case 4: Lcd_WriteStr(2,6,"中Fa");break;
+  21   2                      case 5: Lcd_WriteStr(2,6,"中So");break;
+  22   2                      case 6: Lcd_WriteStr(2,6,"中La");break;
+  23   2                      case 7: Lcd_WriteStr(2,6,"中Si");break;
+  24   2              }
+  25   1      }
+  26          void Yin2(uchar p)
+  27          {
+  28   1              switch(p)
+  29   1              {
+  30   2                      case 0: Lcd_WriteStr(2,3,"    ");break;
+  31   2                      case 1: Lcd_WriteStr(2,3,"中Do");break;
+  32   2                      case 2: Lcd_WriteStr(2,3,"中Re");break;
+  33   2                      case 3: Lcd_WriteStr(2,3,"中Mi");break;
+  34   2                      case 4: Lcd_WriteStr(2,3,"中Fa");break;
+  35   2                      case 5: Lcd_WriteStr(2,3,"中So");break;
+  36   2                      case 6: Lcd_WriteStr(2,3,"中La");break;
+  37   2                      case 7: Lcd_WriteStr(2,3,"中Si");break;
+  38   2              }
+  39   1      }
+  40          void Yin3(uchar q)
+  41          {
+  42   1              switch(q)
+  43   1              {
+  44   2                      case 0: Lcd_WriteStr(2,0,"    ");break;
+  45   2                      case 1: Lcd_WriteStr(2,0,"中Do");break;
+  46   2                      case 2: Lcd_WriteStr(2,0,"中Re");break;
+  47   2                      case 3: Lcd_WriteStr(2,0,"中Mi");break;
+  48   2                      case 4: Lcd_WriteStr(2,0,"中Fa");break;
+  49   2                      case 5: Lcd_WriteStr(2,0,"中So");break;
+  50   2                      case 6: Lcd_WriteStr(2,0,"中La");break;
+  51   2                      case 7: Lcd_WriteStr(2,0,"中Si");break;
+  52   2              }
+  53   1      }
+  54          
+C51 COMPILER V9.01   TEACH                                                                 01/19/2018 10:17:05 PAGE 2   
+
+  55          void Yinchang(uchar time_o)
+  56          {
+  57   1              switch(time_o)
+  58   1              {
+  59   2                      case 0: Lcd_WriteStr(3,6,"0");break;
+  60   2                      case 1: Lcd_WriteStr(3,6,"1");break;
+  61   2                      case 2: Lcd_WriteStr(3,6,"2");break;
+  62   2                      case 3: Lcd_WriteStr(3,6,"3");break;
+  63   2                      case 4: Lcd_WriteStr(3,6,"4");break;
+  64   2              }
+  65   1      }
+  66          
+  67          void Board_first(void)
+  68          {
+  69   1              unsigned char n;
+  70   1              for(n=0;n<=42;n++)
+  71   1              {
+  72   2                      Lcd_Rectangle(3*n,0,3*n+2,2,1);
+  73   2                      Lcd_Rectangle(3*n,60,3*n+2,62,1);
+  74   2              }
+  75   1              for(n=0;n<21;n++)
+  76   1              {
+  77   2                      Lcd_Rectangle(90,3*n,92,3*n+2,1);               
+  78   2              }
+  79   1      }
+  80          
+  81          void Board_second(void)
+  82          {
+  83   1              unsigned char n;
+  84   1              for(n=0;n<=42;n++)
+  85   1              {
+  86   2                      Lcd_Rectangle(3*n,0,3*n+2,2,1);
+  87   2                      Lcd_Rectangle(3*n,60,3*n+2,62,1);
+  88   2              }
+  89   1      }
+  90          
+  91          void arrow(void)
+  92          {
+  93   1              uchar n;
+  94   1              for(n=6;n<=21;n++)
+  95   1                 Lcd_Rectangle(3*n,3*6,3*n+2,3*6+2,1);
+  96   1              for(n=19;n<=20;n++)
+  97   1              {
+  98   2                      Lcd_Rectangle(3*n,3*5,3*n+2,3*5+2,1);
+  99   2                      Lcd_Rectangle(3*n,3*7,3*n+2,3*7+2,1);
+ 100   2              }
+ 101   1              for(n=18;n<=19;n++)
+ 102   1              {
+ 103   2              Lcd_Rectangle(3*n,3*4,3*n+2,3*4+2,1);
+ 104   2              Lcd_Rectangle(3*n,3*8,3*n+2,3*8+2,1);
+ 105   2              }
+ 106   1              for(n=17;n<=18;n++)
+ 107   1              {
+ 108   2              Lcd_Rectangle(3*n,3*3,3*n+2,3*3+2,1);
+ 109   2              Lcd_Rectangle(3*n,3*9,3*n+2,3*9+2,1);
+ 110   2              }
+ 111   1              for(n=16;n<=17;n++)
+ 112   1              {
+ 113   2              Lcd_Rectangle(3*n,3*2,3*n+2,3*2+2,1);
+ 114   2              Lcd_Rectangle(3*n,3*10,3*n+2,3*10+2,1);
+ 115   2              }
+ 116   1      }                                                                
+C51 COMPILER V9.01   TEACH                                                                 01/19/2018 10:17:05 PAGE 3   
+
+ 117          
+ 118          
+ 119          
+ 120          void Teach(void)
+ 121          {
+ 122   1              uchar iter_Teach = 0;
+ 123   1              uchar o,p,q,time_o;
+ 124   1              uchar x;
+ 125   1              uchar i;
+ 126   1              uchar set_time;
+ 127   1      
+ 128   1              Board_first();
+ 129   1              arrow();
+ 130   1              Lcd_WriteStr(1,6,"当前");
+ 131   1              o = Music_Teach[0];
+ 132   1              p = Music_Teach[2];
+ 133   1              q = Music_Teach[4];
+ 134   1              time_o = Music_Teach[1];
+ 135   1              TMOD|=0x11;    
+ 136   1              ET0=1;
+ 137   1              EA = 1;
+ 138   1      //      PT0=1;
+ 139   1      //      PT1=0;
+ 140   1              set_time=200;
+ 141   1              n = set_time;
+ 142   1              TR0 = 1;
+ 143   1              while((o!=0)&&(menuflag==8))
+ 144   1              {
+ 145   2                       Yin1(o);
+ 146   2                       Yin2(p);
+ 147   2                       Yin3(q);
+ 148   2                       Yinchang(time_o);
+ 149   2                       if(time_o==0)
+ 150   2                       {
+ 151   3                              iter_Teach = iter_Teach+2;
+ 152   3                              o = p;
+ 153   3                              p = q;
+ 154   3                              q = Music_Teach[iter_Teach+4];
+ 155   3                              time_o = Music_Teach[iter_Teach+1];
+ 156   3                       }
+ 157   2                       
+ 158   2                       if(n==0)
+ 159   2                      {n = set_time;time_o--;}
+ 160   2                       
+ 161   2                       x = Piano();
+ 162   2                       if(x!=0)
+ 163   2                              {
+ 164   3                              for(i=0;i<150;i++)
+ 165   3                                      {
+ 166   4                                              if(n==0)
+ 167   4                                               {n = set_time;time_o--; break;}
+ 168   4                                               Sound(x);
+ 169   4                                      }
+ 170   3                              }       
+ 171   2      
+ 172   2              }        
+ 173   1              
+ 174   1              Lcd_Clear(0);
+ 175   1          Lcd_WriteStr(3,6,"  ");
+ 176   1              Board_second();
+ 177   1              Lcd_WriteStr(1,0,"这只是入门，    ");
+ 178   1              Lcd_WriteStr(2,0,"变强还要多练习哦");  
+C51 COMPILER V9.01   TEACH                                                                 01/19/2018 10:17:05 PAGE 4   
+
+ 179   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1239    ----
+   CONSTANT SIZE    =    127    ----
+   XDATA SIZE       =   ----      11
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

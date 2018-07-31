@@ -1,0 +1,217 @@
+C51 COMPILER V9.01   MAIN                                                                  01/19/2018 10:17:04 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN ..\OBJ\main.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE main.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXTEND OBJECT(..\
+                    -OBJ\main.obj)
+
+line level    source
+
+   1          #include "function.h"
+   2          #include "display.h"
+   3          #include "music.h"
+   4          #include "sound.h"
+   5          #include "game.h"
+   6          #include "teach.h"
+   7          #include "musicGame.h"
+   8          
+   9          #define uchar unsigned char
+  10          #define uint  unsigned int
+  11          
+  12          //extern uchar menuflag;
+  13          extern uchar selectSong;
+  14          extern uchar acPointerx;
+  15          extern uchar acPointery;
+  16          extern uchar musicSpeed;
+  17          //extern uchar item;
+  18          
+  19          
+  20          //sbit gao = P4^5;
+  21          //sbit di  = P4^4;
+  22          void Timer0()  interrupt 1   //采用中断0 控制节拍    
+  23          {  
+  24   1              TH0=0xd8;   
+  25   1              TL0=0xef;   
+  26   1              n--;  
+  27   1      }
+  28          
+  29          void Int0int(void) interrupt 0
+  30          {
+  31   1                      uint KeyValue=16;
+  32   1                      uchar a=0;
+  33   1              P2=0X0F;
+  34   1                              if(P2!=0x0f)
+  35   1                              {
+  36   2                              delayMs(100);                   //防抖动处理
+  37   2                              //test columns
+  38   2                                      switch(P2)
+  39   2                                      {
+  40   3                                              case(0X07):     KeyValue=0;break;
+  41   3                                              case(0X0b):     KeyValue=1;break;
+  42   3                                              case(0X0d): KeyValue=2;break;
+  43   3                                              case(0X0e):     KeyValue=3;break;
+  44   3                                      }
+  45   2                                      //test rows
+  46   2                                      P2=0XF0;
+  47   2                                      switch(P2)
+  48   2                                      {
+  49   3                                              case(0X70):     KeyValue=KeyValue;break;
+  50   3                                              case(0Xb0):     KeyValue=KeyValue+4;break;
+  51   3                                              case(0Xd0): KeyValue=KeyValue+8;break;
+  52   3                                              case(0Xe0):     KeyValue=KeyValue+12;break;
+  53   3                                      }
+  54   2                                      while((a<50)&&(P2!=0xf0))        //monitor if still pressing
+C51 COMPILER V9.01   MAIN                                                                  01/19/2018 10:17:04 PAGE 2   
+
+  55   2                                      {
+  56   3                                              delayMs(10);
+  57   3                                              a++;                         
+  58   3                                      }
+  59   2                                      switch(KeyValue)                        //给按键函数传入相应的参数，确定该次按键触发的动作
+  60   2                                      {
+  61   3                                              case(0): menuKey(0); break;
+  62   3                                              case(1): menuKey(1); break;
+  63   3                                              case(2): menuKey(2); break;
+  64   3                                              case(3): menuKey(3); break;
+  65   3                                              case(4): menuKey(4); break;
+  66   3                                              case(5): menuKey(5); break;
+  67   3                                              case(6): menuKey(6); break;
+  68   3                                              case(7): menuKey(7); break;
+  69   3                                              case(8): menuKey(8); break;
+  70   3                                              case(9): menuKey(9); break;
+  71   3                                              case(10): menuKey(10); break;
+  72   3                                              case(11): menuKey(11); break;
+  73   3                                              case(12): menuKey(12); break;
+  74   3                                              case(13): menuKey(13); break;
+  75   3                                              case(14): menuKey(14); break;
+  76   3                                              case(15): menuKey(15); break;
+  77   3                      
+  78   3                                      }
+  79   2                              }
+  80   1                              P2=0x0f;         //复位矩阵键盘
+  81   1                              delayMs(1000);
+  82   1          }
+  83          
+  84          
+  85          
+  86          void main()
+  87          {       
+  88   1          uint i=0;
+  89   1              Lcd_Clear(0);           //清屏
+  90   1              init();                     //屏幕初始化
+  91   1              kaiji1();                       //开机动画
+*** WARNING C206 IN LINE 91 OF MAIN.C: 'kaiji1': missing function-prototype
+  92   1              kaiji2();                       //开机动画
+*** WARNING C206 IN LINE 92 OF MAIN.C: 'kaiji2': missing function-prototype
+  93   1              quanquan();                     //开机动画
+*** WARNING C206 IN LINE 93 OF MAIN.C: 'quanquan': missing function-prototype
+  94   1              EA=1;                           //中断使能
+  95   1              TMOD|=0x11;                //时钟初始化三连
+  96   1              ET1=1;                    //
+  97   1              PT1=1;                   //
+  98   1          EX0=1;
+  99   1          IT0=1;                      //使能int0，下降沿触发
+ 100   1              P2=0x0f;                 //激活矩阵键盘
+ 101   1          init();                      //屏幕初始化   
+ 102   1              Lcd_Clear(0);//清屏
+ 103   1              menu0();           //绘制主菜单
+ 104   1      
+ 105   1              while(1)
+ 106   1              {
+ 107   2               switch(menuflag)                //通过判断menuflag来决定当前的功能
+ 108   2               {
+ 109   3                   case(2): 
+ 110   3                              Function_1();                             //自有弹奏函数
+ 111   3                              break;            
+ 112   3                       case(3):                                                //在播放内置音乐时，通过判断selectsong来确定播放哪首歌
+ 113   3                       if(selectSong==1)
+C51 COMPILER V9.01   MAIN                                                                  01/19/2018 10:17:04 PAGE 3   
+
+ 114   3                       {
+ 115   4                           music1();
+ 116   4                               selectSong=0;
+ 117   4                               menuflag=0;
+ 118   4                               acPointerx=0;
+ 119   4                               acPointery=0;
+ 120   4                               menu0();
+ 121   4                       }else if(selectSong==2)
+ 122   3                       {
+ 123   4                           music2();
+ 124   4                               selectSong=0;
+ 125   4                               menuflag=0;
+ 126   4                               acPointerx=0;
+ 127   4                               acPointery=0;
+ 128   4                               menu0();
+ 129   4                       }                                                        //可以继续添加歌曲，需要和menukey结合起来修改，selectSong=3，4……
+ 130   3                       
+ 131   3                       break;
+ 132   3                       case(4):Function_2(); break;    //录音函数
+ 133   3                       case(7):
+ 134   3                              InitCpu();//初始化CPU
+ 135   3                      Lcd_Reset(); //初始化LCD屏
+ 136   3                      Lcd_Clear(0);//清屏
+ 137   3                      DrawBoard();//画界面
+ 138   3                      GamePlay();//玩游戏
+ 139   3                      GameOver();//游戏结束
+ 140   3                              while(1)
+ 141   3                              {
+ 142   4                              if(menuflag==0)break;
+ 143   4                              }
+ 144   3                              init();
+ 145   3                              Lcd_Clear(0);//清屏
+ 146   3                              menu0();
+ 147   3                              IE2=0x00;
+ 148   3                              break;
+ 149   3                      case(8):
+ 150   3                      Lcd_WriteCmd(0x01);
+ 151   3                          Teach();                               //学习函数
+ 152   3                              while(1)                                   //结束以后还留在当前界面，按返回键再退出
+ 153   3                              {
+ 154   4                              if(menuflag==0)break;
+ 155   4                              }
+ 156   3                              init();
+ 157   3                              menu0();
+ 158   3                              break;
+ 159   3                      case(9):
+ 160   3                              if(musicSpeed!=0)
+ 161   3                              {
+ 162   4                              Lcd_WriteCmd(0x01);
+ 163   4                              Lcd_Clear(0);
+ 164   4                              Lcd_WriteCmd(0x0c);                                             //关闭光标
+ 165   4                              if(musicSpeed==3)                                               //游戏难度选择
+ 166   4                              musicGame2(musicSpeed);
+ 167   4                              else
+ 168   4                                  musicGame(musicSpeed);
+ 169   4                              while(1)                                                          //游戏结束后不直接退出
+ 170   4                              {
+ 171   5                              if(menuflag==0)
+ 172   5                              {
+ 173   6                               musicSpeed=0;
+ 174   6                               break;
+ 175   6                               }
+C51 COMPILER V9.01   MAIN                                                                  01/19/2018 10:17:04 PAGE 4   
+
+ 176   5                              }
+ 177   4                              init();
+ 178   4                              menu0();
+ 179   4                              }
+ 180   3                              break;
+ 181   3               }
+ 182   2              }                        
+ 183   1      
+ 184   1      }                          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    688    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  3 WARNING(S),  0 ERROR(S)

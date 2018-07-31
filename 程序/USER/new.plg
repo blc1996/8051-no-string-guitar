@@ -1,0 +1,212 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\Dwyane\Desktop\新建文件夹\USER\new.uvproj
+Project File Date:  12/09/2017
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling main.c...
+main.c(1): warning C318: can't open file 'function.h'
+main.c(3): warning C318: can't open file 'music.h'
+MAIN.C(13): warning C206: 'Function_2': missing function-prototype
+compiling delay.c...
+compiling function.c...
+..\ASSIST\FUNCTION.C(15): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(19): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(34): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(40): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(54): warning C209: '_Piano': too few actual parameters
+compiling music.c...
+compiling piano.c...
+compiling record.c...
+..\ASSIST\RECORD.C(9): warning C235: parameter 2: different types
+compiling sound.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=718
+"new" - 0 Error(s), 11 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=718
+"new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=718
+creating hex file from "new"...
+"new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+main.c(1): warning C318: can't open file 'function.h'
+main.c(3): warning C318: can't open file 'music.h'
+MAIN.C(13): warning C206: 'Function_2': missing function-prototype
+compiling delay.c...
+compiling function.c...
+..\ASSIST\FUNCTION.C(15): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(19): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(34): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(40): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(54): warning C209: '_Piano': too few actual parameters
+compiling music.c...
+compiling piano.c...
+compiling record.c...
+..\ASSIST\RECORD.C(9): warning C235: parameter 2: different types
+compiling sound.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=718
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 11 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=718
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling record.c...
+..\ASSIST\RECORD.C(9): warning C235: parameter 2: different types
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=747
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 3 Warning(s).
+Build target 'Target 1'
+compiling record.c...
+..\ASSIST\RECORD.C(9): warning C235: parameter 2: different types
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=747
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 3 Warning(s).
+Build target 'Target 1'
+compiling piano.c...
+..\ASSIST\PIANO.C(15): warning C280: 'i': unreferenced local variable
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=755
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 3 Warning(s).
+Build target 'Target 1'
+compiling piano.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=747
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling piano.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=747
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling piano.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=24.0 xdata=300 code=747
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+main.c(1): warning C318: can't open file 'function.h'
+main.c(3): warning C318: can't open file 'music.h'
+MAIN.C(13): warning C206: 'Function_2': missing function-prototype
+compiling delay.c...
+compiling function.c...
+..\ASSIST\FUNCTION.C(15): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(19): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(34): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(40): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(54): warning C209: '_Piano': too few actual parameters
+compiling music.c...
+compiling piano.c...
+compiling record.c...
+..\ASSIST\RECORD.C(9): warning C235: parameter 2: different types
+compiling sound.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=9.0 xdata=315 code=909
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 11 Warning(s).
+Build target 'Target 1'
+compiling main.c...
+compiling delay.c...
+compiling function.c...
+..\ASSIST\FUNCTION.C(15): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(19): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(34): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(40): warning C209: '_Piano': too few actual parameters
+..\ASSIST\FUNCTION.C(54): warning C209: '_Piano': too few actual parameters
+compiling music.c...
+compiling piano.c...
+compiling record.c...
+..\ASSIST\RECORD.C(9): warning C235: parameter 2: different types
+compiling sound.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=9.0 xdata=315 code=882
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 8 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=9.0 xdata=315 code=882
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 2 Warning(s).
+Build target 'Target 1'
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?FUNCTION_1?FUNCTION
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MUSIC?MUSIC
+Program Size: data=9.0 xdata=315 code=882
+creating hex file from "..\OBJ\new"...
+"..\OBJ\new" - 0 Error(s), 2 Warning(s).

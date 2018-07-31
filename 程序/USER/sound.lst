@@ -1,0 +1,69 @@
+C51 COMPILER V9.01   SOUND                                                                 01/19/2018 10:17:04 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SOUND
+OBJECT MODULE PLACED IN ..\OBJ\sound.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\sound.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXTEND
+                    - PRINT(.\sound.lst) OBJECT(..\OBJ\sound.obj)
+
+line level    source
+
+   1          #include "sound.h"
+   2          #include "reg51.h"
+   3          //#include "delay.h"
+   4          
+   5          sbit beep = P3^0;
+   6          
+   7          
+   8          
+   9          //uint code note[] = {0xf8, 0x89, 0xf9, 0x59, 0xfa, 0x13, 0xfa, 0x68, 0xfb, 0x05, 0xfb, 0x90, 0xfc, 0x0c,
+  10          //                                      0xfc, 0x44, 0xfc, 0xad, 0xfd, 0x0a, 0xfd, 0x34, 0xfd, 0x83, 0xfd, 0xc8, 0xfe, 0x06,       
+  11          //                                      0xfe, 0x23, 0xfe, 0x57, 0xfe, 0x85, 0xfe, 0x9a, 0xfe, 0xc2, 0xfe, 0xe4, 0xff, 0x02};
+  12          
+  13          uint code note[] = {0xf8, 0x89, 0xf9, 0x59, 0xfa, 0x13, 0xfa, 0x68, 0xfb, 0x05, 0xfb, 0x90, 0xfc, 0x0c,
+  14                                                  0xfc, 0x44, 0xfc, 0xad, 0xfd, 0x0a, 0xfd, 0x34, 0xfd, 0x83, 0xfd, 0xc8, 0xfe, 0x06,       
+  15                                                  0xfe, 0x23, 0xfe, 0x57, 0xfe, 0x85, 0xfe, 0x9a, 0xfe, 0xc2, 0xfe, 0xe4, 0xff, 0x02};
+  16          
+  17          
+  18          /*uint code note[] =    {63625,63833,64019,64104,64260,64400,64524,
+  19                                                   64581,64685,64778,64820,64898,64968,65030,
+  20                                                   65058,65111,65157,65178,65217,65252,65283 }; */
+  21          
+  22          uchar t ;
+  23          
+  24          void Timer1() interrupt 3
+  25          {
+  26   1               t=0;
+  27   1               beep=~beep;
+  28   1               
+  29   1      }
+  30          
+  31          void Sound(uchar x)
+  32          {
+  33   1      //      TMOD|=0x11;
+  34   1      //      ET1=1;
+  35   1      //      PT1=1;
+  36   1              t = 1;                                                                                          
+  37   1              TH1 = note[x*2-2];
+  38   1              TL1 = note[x*2-1];
+  39   1              TR1=1;
+  40   1              while(t)
+  41   1              {}
+  42   1              TR1=0;
+  43   1      }               
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     75    ----
+   CONSTANT SIZE    =     84    ----
+   XDATA SIZE       =      1    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.01   SOUND                                                                 01/19/2018 10:17:04 PAGE 2   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

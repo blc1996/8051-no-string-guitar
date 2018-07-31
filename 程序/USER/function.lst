@@ -1,0 +1,103 @@
+C51 COMPILER V9.01   FUNCTION                                                              01/19/2018 10:17:04 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE FUNCTION
+OBJECT MODULE PLACED IN ..\OBJ\function.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\function.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEXT
+                    -END PRINT(.\function.lst) OBJECT(..\OBJ\function.obj)
+
+line level    source
+
+   1          #include "function.h"
+   2          #include "sound.h"
+   3          #include "delay.h"
+   4          #include "piano.h"
+   5          #include "record.h"
+   6          #include "display.h"
+   7          
+   8          extern void menu2change(uchar x);
+   9          uchar ritem=0;//建立全局变量用于对音符进行记录
+  10          bit recordFlag = 0;
+  11          
+  12          
+  13          //普通无弦琴函数
+  14          //功能：按不同的琴弦会发出相应的声音
+  15          void Function_1(void)
+  16          {
+  17   1              uchar x;
+  18   1              x = Piano();
+  19   1              menu2change(x);
+  20   1              while(x!=0)
+  21   1              {
+  22   2                      Sound(x);
+  23   2                      x = Piano();            
+  24   2              }
+  25   1      }
+  26          
+  27          
+  28          //录音无弦琴函数
+  29          //功能：包含了普通无弦琴功能，外加录音功能
+  30          extern void Function_2(void)
+  31          {
+  32   1              uchar x,rnote;//x用于得到Piano函数的值，note用于记录音符
+  33   1              uint rtime;      //time用于记录每个音符保持多少个时间周期，这里的包括没有音符（即没有声音）的时候也会记录对应
+             -时间
+  34   1              uchar a;
+  35   1              //需要添加数组清零操作
+  36   1              x = Piano();
+  37   1      /*      if(x==27)       //如果按下这个按键会开始播放录音
+  38   1                      {
+  39   1                              output(recordFlag);
+  40   1                              x = Piano();
+  41   1                              item = 0;                //播放完录音之后对播放进行初始化
+  42   1                      }
+  43   1                       else
+  44   1                      {        */
+  45   1                              rnote = x;
+  46   1                              rtime = 0;
+  47   1                              if(x==0)//如果是0就不发声的计数
+  48   1                                      {
+  49   2      
+  50   2                                              while((x==0)&&(menuflag==4))      
+  51   2                                              {
+  52   3                                                      for(a=0; a<10; a++)
+  53   3                                                              delay(200);              //这里的delay函数是为了与Sound函数的时长对应差不多，防止time太大
+C51 COMPILER V9.01   FUNCTION                                                              01/19/2018 10:17:04 PAGE 2   
+
+  54   3                                                      x = Piano();
+  55   3                                                      rtime++;
+  56   3                                                      
+  57   3                                              }
+  58   2                                              input(rnote,rtime,ritem,recordFlag);
+  59   2                                              ritem++;
+  60   2                                      }
+  61   1                              else//如果不是0就响声，然后计数
+  62   1                                      {
+  63   2                                              menu2change(x);
+  64   2                                              while(x!=0)             
+  65   2                                              {
+  66   3                                                      Sound(x);
+  67   3                                                      x = Piano();
+  68   3                                                      rtime++;
+  69   3                                              }
+  70   2                                              input(rnote,rtime,ritem,recordFlag);
+  71   2                                              ritem++;
+  72   2                                      }
+  73   1      
+  74   1      
+  75   1                      
+  76   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    183    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      1       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

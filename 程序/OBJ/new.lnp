@@ -1,0 +1,17 @@
+"..\OBJ\main.obj",
+"..\OBJ\delay.obj",
+"..\OBJ\function.obj",
+"..\OBJ\music.obj",
+"..\OBJ\piano.obj",
+"..\OBJ\record.obj",
+"..\OBJ\sound.obj",
+"..\OBJ\display.obj",
+"..\OBJ\game.obj",
+"..\OBJ\key.obj",
+"..\OBJ\teach.obj",
+"..\OBJ\musicGame.obj",
+"..\OBJ\upup.obj" 
+TO "..\OBJ\new" 
+PRINT(".\new.m51") RAMSIZE(256) 
+CODE( 0X0000-0XEFF8 )
+XDATA( 0X0000-0X06FF )

@@ -1,0 +1,9 @@
+"main.obj",
+".\delay.obj",
+".\function.obj",
+".\music.obj",
+".\piano.obj",
+".\record.obj",
+".\sound.obj" 
+TO "new" 
+RAMSIZE(256) 

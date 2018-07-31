@@ -1,0 +1,637 @@
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE MUSICGAME
+OBJECT MODULE PLACED IN ..\OBJ\musicGame.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\ASSIST\musicGame.c LARGE BROWSE INCDIR(..\USER;..\ASSIST) DEBUG OBJECTEX
+                    -TEND PRINT(.\musicGame.lst) OBJECT(..\OBJ\musicGame.obj)
+
+line level    source
+
+   1          #include "music.h"
+   2          #include "delay.h"
+   3          #include "sound.h"
+   4          #include "display.h"
+   5          
+   6          uchar code NUM0[]={0x00,0x00,0x18,0x7E,0x7E,0xE7,0xE7,0xE7,0xE7,0xE7,0xE7,0xE7,0x7E,0x3C,0x00,0x00};
+   7                  uchar code NUM1[]={0x00,0x00,0x00,0x1C,0x3C,0x7C,0x7C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x00,0x00};
+   8                  uchar code NUM2[]={0x00,0x00,0x18,0x7E,0xFE,0xE7,0x07,0x0E,0x0E,0x1C,0x38,0x70,0xFF,0xFF,0x00,0x00};
+   9                  uchar code NUM3[]={0x00,0x00,0x18,0x7E,0xFF,0xE7,0x06,0x1E,0x1E,0x07,0x47,0xE7,0x7E,0x7C,0x00,0x00};
+  10                  uchar code NUM4[]={0x00,0x00,0x04,0x0E,0x1E,0x1E,0x3E,0x7E,0x6E,0xEE,0xFF,0xFF,0x0E,0x0E,0x00,0x00};
+  11                  uchar code NUM5[]={0x00,0x00,0x00,0x7E,0x7E,0xE0,0xFC,0xFE,0xC7,0x07,0x47,0xC7,0xFE,0x7C,0x00,0x00};
+  12                  uchar code NUM6[]={0x00,0x00,0x0C,0x1C,0x1C,0x38,0x78,0x7E,0xE7,0xE7,0xE7,0xE7,0xFF,0x7E,0x00,0x00};
+  13                  uchar code NUM7[]={0x00,0x00,0x00,0xFF,0x7F,0x06,0x0E,0x0C,0x1C,0x18,0x38,0x38,0x38,0x70,0x00,0x00};
+  14                  uchar code NUM8[]={0x00,0x00,0x10,0x7E,0xEE,0xE7,0xE6,0x7E,0xFE,0xE7,0xC7,0xE7,0xFE,0x7E,0x00,0x00};
+  15                  uchar code NUM9[]={0x00,0x00,0x18,0x7E,0xEE,0xE7,0xC7,0xE7,0xFE,0x7E,0x1C,0x18,0x38,0x70,0x00,0x00};
+  16          //数字0到9的字模
+  17          
+  18                  uchar code note0[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  19                  uchar code note1[]={0x00,0x00,0x00,0x1C,0x3C,0x7C,0x7C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x00,0x18};
+  20                  uchar code note2[]={0x00,0x00,0x18,0x7E,0xFE,0xE7,0x07,0x0E,0x0E,0x1C,0x38,0x70,0xFF,0xFF,0x00,0x18};
+  21                  uchar code note3[]={0x00,0x00,0x18,0x7E,0xFF,0xE7,0x06,0x1E,0x1E,0x07,0x47,0xE7,0x7E,0x7C,0x00,0x18};
+  22                  uchar code note4[]={0x00,0x00,0x04,0x0E,0x1E,0x1E,0x3E,0x7E,0x6E,0xEE,0xFF,0xFF,0x0E,0x0E,0x00,0x18};
+  23                  uchar code note5[]={0x00,0x00,0x00,0x7E,0x7E,0xE0,0xFC,0xFE,0xC7,0x07,0x47,0xC7,0xFE,0x7C,0x00,0x18};
+  24                  uchar code note6[]={0x00,0x00,0x0C,0x1C,0x1C,0x38,0x78,0x7E,0xE7,0xE7,0xE7,0xE7,0xFF,0x7E,0x00,0x18};
+  25                  uchar code note7[]={0x00,0x00,0x00,0xFF,0x7F,0x06,0x0E,0x0C,0x1C,0x18,0x38,0x38,0x38,0x70,0x00,0x18};
+  26                  uchar code note8[]={0x00,0x00,0x00,0x1C,0x3C,0x7C,0x7C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x00,0x00};
+  27                  uchar code note9[]={0x00,0x00,0x18,0x7E,0xFE,0xE7,0x07,0x0E,0x0E,0x1C,0x38,0x70,0xFF,0xFF,0x00,0x00};
+  28                  uchar code note10[]={0x00,0x00,0x18,0x7E,0xFF,0xE7,0x06,0x1E,0x1E,0x07,0x47,0xE7,0x7E,0x7C,0x00,0x00};
+  29                  uchar code note11[]={0x00,0x00,0x04,0x0E,0x1E,0x1E,0x3E,0x7E,0x6E,0xEE,0xFF,0xFF,0x0E,0x0E,0x00,0x00};
+  30                  uchar code note12[]={0x00,0x00,0x00,0x7E,0x7E,0xE0,0xFC,0xFE,0xC7,0x07,0x47,0xC7,0xFE,0x7C,0x00,0x00};
+  31                  uchar code note13[]={0x00,0x00,0x0C,0x1C,0x1C,0x38,0x78,0x7E,0xE7,0xE7,0xE7,0xE7,0xFF,0x7E,0x00,0x00};
+  32                  uchar code note14[]={0x00,0x00,0x00,0xFF,0x7F,0x06,0x0E,0x0C,0x1C,0x18,0x38,0x38,0x38,0x70,0x00,0x00};
+  33                  uchar code note15[]={0x18,0x00,0x00,0x1C,0x3C,0x7C,0x7C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x1C,0x00,0x00};
+  34                  uchar code note16[]={0x18,0x00,0x18,0x7E,0xFE,0xE7,0x07,0x0E,0x0E,0x1C,0x38,0x70,0xFF,0xFF,0x00,0x00};
+  35                  uchar code note17[]={0x18,0x00,0x18,0x7E,0xFF,0xE7,0x06,0x1E,0x1E,0x07,0x47,0xE7,0x7E,0x7C,0x00,0x00};
+  36                  uchar code note18[]={0x18,0x00,0x04,0x0E,0x1E,0x1E,0x3E,0x7E,0x6E,0xEE,0xFF,0xFF,0x0E,0x0E,0x00,0x00};
+  37                  uchar code note19[]={0x18,0x00,0x00,0x7E,0x7E,0xE0,0xFC,0xFE,0xC7,0x07,0x47,0xC7,0xFE,0x7C,0x00,0x00};
+  38                  uchar code note20[]={0x18,0x00,0x0C,0x1C,0x1C,0x38,0x78,0x7E,0xE7,0xE7,0xE7,0xE7,0xFF,0x7E,0x00,0x00};
+  39                  uchar code note21[]={0x18,0x00,0x0C,0x1C,0x1C,0x38,0x78,0x7E,0xE7,0xE7,0xE7,0xE7,0xFF,0x7E,0x00,0x00};
+  40          //三个音阶，一共21个音符的字模
+  41          
+  42                  uchar code BNOTE0[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+  43                                                          0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+  44                                                          0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  45                  uchar code BNOTE1[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0E,0x00,0x3E,0x00,0x0E,0x00,0x0E,0x00,
+  46                                                          0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,
+  47                                                          0x0E,0x00,0x3F,0x80,0x00,0x00,0x0c,0x00,0x00,0x00};
+  48                  uchar code BNOTE2[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x80,0x7B,0xC0,0x61,0xC0,0x71,0xC0,
+  49                                                          0x71,0xC0,0x01,0xC0,0x03,0x80,0x07,0x00,0x0E,0x00,0x1C,0x00,0x38,0x00,0x70,0xC0,
+  50                                                          0x61,0xC0,0xFF,0xC0,0x00,0x00,0x0c,0x00,0x00,0x00};
+  51                  uchar code BNOTE3[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x73,0x80,0x71,0xC0,0x71,0xC0,
+  52                                                          0x01,0x80,0x07,0x80,0x0F,0x00,0x03,0x80,0x01,0xC0,0x01,0xC0,0x71,0xC0,0x71,0xC0,
+  53                                                          0x73,0x80,0x3F,0x80,0x00,0x00,0x0c,0x00,0x00,0x00};
+  54                  uchar code BNOTE4[]={0x00,0x00,0x00,0x00,0x00,0x00,0x03,0x00,0x07,0x00,0x07,0x00,0x0F,0x00,0x1F,0x00,
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 2   
+
+  55                                                          0x1F,0x00,0x37,0x00,0x37,0x00,0x67,0x00,0xC7,0x00,0xFF,0xC0,0x07,0x00,0x07,0x00,
+  56                                                          0x07,0x00,0x1F,0xC0,0x00,0x00,0x0c,0x00,0x00,0x00};
+  57                  uchar code BNOTE5[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x60,0x00,0x60,0x00,
+  58                                                          0x60,0x00,0x7F,0x80,0x7B,0xC0,0x61,0xC0,0x01,0xC0,0x00,0xC0,0x71,0xC0,0x71,0xC0,
+  59                                                          0x7F,0x80,0x3F,0x00,0x00,0x00,0x0c,0x00,0x00,0x00};
+  60                  uchar code BNOTE6[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1F,0x80,0x3D,0xC0,0x71,0xC0,0x70,0x00,
+  61                                                          0x70,0x00,0xFF,0x80,0xFB,0xC0,0xF1,0xC0,0xE0,0xE0,0xE0,0xE0,0x70,0xE0,0x71,0xC0,
+  62                                                          0x3B,0xC0,0x1F,0x80,0x00,0x00,0x0c,0x00,0x00,0x00};
+  63                  uchar code BNOTE7[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x61,0x80,0x03,0x00,
+  64                                                          0x03,0x00,0x06,0x00,0x06,0x00,0x0E,0x00,0x0C,0x00,0x1C,0x00,0x1C,0x00,0x1C,0x00,
+  65                                                          0x1C,0x00,0x1C,0x00,0x00,0x00,0x0c,0x00,0x00,0x00};
+  66                  uchar code BNOTE8[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0E,0x00,0x3E,0x00,0x0E,0x00,0x0E,0x00,
+  67                                                          0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,
+  68                                                          0x0E,0x00,0x3F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};
+  69                  uchar code BNOTE9[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x80,0x7B,0xC0,0x61,0xC0,0x71,0xC0,
+  70                                                          0x71,0xC0,0x01,0xC0,0x03,0x80,0x07,0x00,0x0E,0x00,0x1C,0x00,0x38,0x00,0x70,0xC0,
+  71                                                          0x61,0xC0,0xFF,0xC0,0x00,0x00,0x00,0x00,0x00,0x00};
+  72                  uchar code BNOTE10[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x73,0x80,0x71,0xC0,0x71,0xC0,
+  73                                                          0x01,0x80,0x07,0x80,0x0F,0x00,0x03,0x80,0x01,0xC0,0x01,0xC0,0x71,0xC0,0x71,0xC0,
+  74                                                          0x73,0x80,0x3F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};
+  75                  uchar code BNOTE11[]={0x00,0x00,0x00,0x00,0x00,0x00,0x03,0x00,0x07,0x00,0x07,0x00,0x0F,0x00,0x1F,0x00,
+  76                                                          0x1F,0x00,0x37,0x00,0x37,0x00,0x67,0x00,0xC7,0x00,0xFF,0xC0,0x07,0x00,0x07,0x00,
+  77                                                          0x07,0x00,0x1F,0xC0,0x00,0x00,0x00,0x00,0x00,0x00};
+  78                  uchar code BNOTE12[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x60,0x00,0x60,0x00,
+  79                                                          0x60,0x00,0x7F,0x80,0x7B,0xC0,0x61,0xC0,0x01,0xC0,0x00,0xC0,0x71,0xC0,0x71,0xC0,
+  80                                                          0x7F,0x80,0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  81                  uchar code BNOTE13[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1F,0x80,0x3D,0xC0,0x71,0xC0,0x70,0x00,
+  82                                                          0x70,0x00,0xFF,0x80,0xFB,0xC0,0xF1,0xC0,0xE0,0xE0,0xE0,0xE0,0x70,0xE0,0x71,0xC0,
+  83                                                          0x3B,0xC0,0x1F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};
+  84                  uchar code BNOTE14[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x61,0x80,0x03,0x00,
+  85                                                          0x03,0x00,0x06,0x00,0x06,0x00,0x0E,0x00,0x0C,0x00,0x1C,0x00,0x1C,0x00,0x1C,0x00,
+  86                                                          0x1C,0x00,0x1C,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+  87                  uchar code BNOTE15[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x00,0x00,0x0E,0x00,0x3E,0x00,0x0E,0x00,0x0E,0x00,
+  88                                                          0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,0x0E,0x00,
+  89                                                          0x0E,0x00,0x3F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};
+  90                  uchar code BNOTE16[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x00,0x00,0x3F,0x80,0x7B,0xC0,0x61,0xC0,0x71,0xC0,
+  91                                                          0x71,0xC0,0x01,0xC0,0x03,0x80,0x07,0x00,0x0E,0x00,0x1C,0x00,0x38,0x00,0x70,0xC0,
+  92                                                          0x61,0xC0,0xFF,0xC0,0x00,0x00,0x00,0x00,0x00,0x00};
+  93                  uchar code BNOTE17[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x00,0x00,0x3F,0x00,0x73,0x80,0x71,0xC0,0x71,0xC0,
+  94                                                          0x01,0x80,0x07,0x80,0x0F,0x00,0x03,0x80,0x01,0xC0,0x01,0xC0,0x71,0xC0,0x71,0xC0,
+  95                                                          0x73,0x80,0x3F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};
+  96                  uchar code BNOTE18[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x03,0x00,0x07,0x00,0x07,0x00,0x0F,0x00,0x1F,0x00,
+  97                                                          0x1F,0x00,0x37,0x00,0x37,0x00,0x67,0x00,0xC7,0x00,0xFF,0xC0,0x07,0x00,0x07,0x00,
+  98                                                          0x07,0x00,0x1F,0xC0,0x00,0x00,0x00,0x00,0x00,0x00};
+  99                  uchar code BNOTE19[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x60,0x00,0x60,0x00,
+ 100                                                          0x60,0x00,0x7F,0x80,0x7B,0xC0,0x61,0xC0,0x01,0xC0,0x00,0xC0,0x71,0xC0,0x71,0xC0,
+ 101                                                          0x7F,0x80,0x3F,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+ 102                  uchar code BNOTE20[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x00,0x00,0x1F,0x80,0x3D,0xC0,0x71,0xC0,0x70,0x00,
+ 103                                                          0x70,0x00,0xFF,0x80,0xFB,0xC0,0xF1,0xC0,0xE0,0xE0,0xE0,0xE0,0x70,0xE0,0x71,0xC0,
+ 104                                                          0x3B,0xC0,0x1F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};
+ 105                  uchar code BNOTE21[]={0x00,0x00,0x0c,0x00,0x00,0x00,0x00,0x00,0x7F,0xC0,0x7F,0x80,0x61,0x80,0x03,0x00,
+ 106                                                          0x03,0x00,0x06,0x00,0x06,0x00,0x0E,0x00,0x0C,0x00,0x1C,0x00,0x1C,0x00,0x1C,0x00,
+ 107                                                          0x1C,0x00,0x1C,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+ 108          //三个音阶，一共21个音符的大号字模
+ 109          
+ 110                  uchar code key0[]={0x00,0x00,0x3F,0xC0,0x3F,0xC0,0x30,0xC0,0x30,0xC0,0x30,0xC0,0x30,0xC0,0x30,0xC0,
+ 111                                                     0x30,0xC0,0x36,0xC0,0x36,0xC0,0x36,0xC0,0x36,0xC0,0x36,0xC0,0x36,0xC0,0x36,0xC0};
+ 112                  uchar code key1[]={0x00,0x00,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,
+ 113                                                     0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0,0x3F,0xC0};
+ 114                  
+ 115                  uchar code streak1[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x07,0x00,0x00,0x00,0x00,0x00,0x1F,0x00,0x00,
+ 116                                                                  0x00,0x00,0x71,0x9F,0x00,0x00,0x00,0x00,0x73,0x9F,0x00,0x00,0x00,0x00,0x3F,0x87,
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 3   
+
+ 117                                                                  0x00,0x00,0x00,0x00,0x1F,0x07,0x00,0x00,0x00,0x00,0x1E,0x07,0x00,0x00,0x00,0x00,
+ 118                                                                  0x3F,0x07,0x00,0x00,0x00,0x00,0x7B,0x87,0x00,0x00,0x00,0x00,0x71,0x87,0x00,0x00,
+ 119                                                                  0x00,0x00,0x00,0x9F,0xC0,0x00,0x00,0x00,0x00,0x1F,0xC0,0x00,0x00,0x00,0x00,0x00,
+ 120                                                                  0x00,0x00,0x00,0x00};
+ 121                  uchar code streak2[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0F,0x00,0x00,0x00,0x00,0x00,0x1F,0x80,0x00,
+ 122                                                                  0x00,0x00,0x00,0x3B,0xC0,0x00,0x00,0x00,0x73,0xB1,0xC0,0x00,0x00,0x00,0x7B,0x81,
+ 123                                                                  0xC0,0x00,0x00,0x00,0x3F,0x03,0x80,0x00,0x00,0x00,0x1E,0x07,0x80,0x00,0x00,0x00,
+ 124                                                                  0x1F,0x0F,0x00,0x00,0x00,0x00,0x7F,0x9E,0x00,0x00,0x00,0x00,0x73,0x9C,0x00,0x00,
+ 125                                                                  0x00,0x00,0x71,0xBF,0xC0,0x00,0x00,0x00,0x00,0x3F,0xC0,0x00,0x00,0x00,0x00,0x00,
+ 126                                                                  0x00,0x00,0x00,0x00};
+ 127                  uchar code streak3[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x07,0xC0,0x00,0x00,0x00,0x00,0x0F,0xE0,0x00,
+ 128                                                                  0x00,0x00,0x38,0xCC,0x60,0x00,0x00,0x00,0x3D,0xCC,0x60,0x00,0x00,0x00,0x1F,0xC0,
+ 129                                                                  0xE0,0x00,0x00,0x00,0x0F,0x83,0xC0,0x00,0x00,0x00,0x07,0x03,0xC0,0x00,0x00,0x00,
+ 130                                                                  0x1F,0x80,0xE0,0x00,0x00,0x00,0x3D,0xDC,0x70,0x00,0x00,0x00,0x38,0xDC,0x70,0x00,
+ 131                                                                  0x00,0x00,0x38,0x4E,0x70,0x00,0x00,0x00,0x00,0x07,0xE0,0x00,0x00,0x00,0x00,0x00,
+ 132                                                                  0x00,0x00,0x00,0x00};
+ 133                  uchar code streak4[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x80,0x00,0x00,0x00,0x00,0x01,0x80,0x00,
+ 134                                                                  0x00,0x00,0x61,0x83,0x80,0x00,0x00,0x00,0x73,0x87,0x80,0x00,0x00,0x00,0x7F,0x8F,
+ 135                                                                  0x80,0x00,0x00,0x00,0x3F,0x0D,0x80,0x00,0x00,0x00,0x1E,0x1D,0x80,0x00,0x00,0x00,
+ 136                                                                  0x3F,0x39,0x80,0x00,0x00,0x00,0x7F,0xBF,0xC0,0x00,0x00,0x00,0x73,0xBF,0xC0,0x00,
+ 137                                                                  0x00,0x00,0x61,0x81,0x80,0x00,0x00,0x00,0x00,0x01,0x80,0x00,0x00,0x00,0x00,0x00,
+ 138                                                                  0x00,0x00,0x00,0x00};
+ 139          //      uchar code good[]={0x00,0x00,0x00,0x00,0x01,0x80,0x0E,0x00,0x00,0x03,0x01,0x80,0x3F,0x80,0x00,0x03,
+ 140          //                                                      0x01,0x80,0x7F,0xC0,0x00,0x03,0x01,0x80,0x71,0xCE,0x0E,0x1F,0x01,0x80,0x60,0x5F,
+ 141          //                                                      0x9F,0x3F,0x01,0x80,0xE0,0x31,0xB1,0xB3,0x01,0x80,0xE7,0xB1,0xB1,0xB3,0x01,0x80,
+ 142          //                                                      0xE7,0xF1,0xB1,0xB3,0x01,0x80,0x60,0xF1,0xB1,0xB3,0x01,0x80,0x71,0xF1,0xB1,0xB3,
+ 143          //                                                      0x00,0x00,0x7F,0xDF,0xBF,0xBF,0x01,0x80,0x3F,0x9F,0x1F,0x3E,0x01,0x80,0x00,0x00,
+ 144          //                                                      0x00,0x00,0x00,0x00};
+ 145                  uchar code good[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x3F,0x80,0x00,0x03,
+ 146                                                                  0x01,0x80,0x7F,0xC0,0x00,0x03,0x01,0x80,0x71,0xCE,0x0E,0x1F,0x01,0x80,0x60,0x5F,
+ 147                                                                  0xBF,0x3F,0x01,0x80,0xE0,0x31,0xBD,0xB3,0x01,0x80,0xE7,0xB1,0xB1,0xB3,0x01,0x80,
+ 148                                                                  0xE7,0xF1,0xB1,0xB3,0x01,0x80,0x60,0xF1,0xA1,0xB3,0x01,0x80,0x71,0xF1,0xB1,0xB3,
+ 149                                                                  0x00,0x00,0x7F,0xDF,0xBF,0xBF,0x01,0x80,0x3F,0x9F,0x1F,0x3F,0x01,0x80,0x00,0x00,
+ 150                                                                  0x00,0x00,0x00,0x00};
+ 151                  uchar code miss[]={0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x30,0x00,0x00,0x07,0x00,0x00,
+ 152                                                                  0x30,0x00,0x70,0x37,0x00,0x00,0x30,0x00,0x78,0x70,0x00,0x00,0x30,0x00,0x78,0x77,
+ 153                                                                  0x79,0xE0,0x30,0x00,0x7C,0xF7,0x7D,0xF0,0x30,0x00,0x7E,0xF7,0x6D,0xB0,0x30,0x00,
+ 154                                                                  0x7F,0xF7,0x79,0xC0,0x30,0x00,0x77,0xF7,0x7D,0xF0,0x30,0x00,0x73,0xB7,0x1C,0x70,
+ 155                                                                  0x00,0x00,0x73,0xB7,0x4F,0x30,0x30,0x00,0x70,0x37,0x7D,0xE0,0x30,0x00,0x00,0x00,
+ 156                                                                  0x00,0x00,0x00,0x00};
+ 157          //连击与miss的字模
+ 158          
+ 159                  uchar code  gay[]={0x07,0xFC,0x0F,0xFE,0x0F,0xFE,0x0C,0x06,0x0F,0xFE,0x0F,0xFE,0x0C,0x06,0x0C,0x06,
+ 160                                                          0x0C,0x06,0x0C,0x06,0x3C,0x1E,0x7C,0x3E,0x7C,0x7E,0x7C,0x7C,0x38,0x38,0x00,0x00};
+ 161                  uchar code add2[]={0x00,0x00,0x00,0x18,0x00,0x3C,0x18,0x66,0x18,0x62,0x18,0x06,0x7F,0x0C,0x18,0x18,
+ 162                                                          0x18,0x30,0x18,0x60,0x00,0x7E,0x00,0x00};
+ 163          
+ 164          
+ 165          sbit k1 = P1^1;
+ 166          sbit k2 = P1^2;
+ 167          sbit k3 = P1^3;
+ 168          sbit k4 = P1^4;
+ 169          sbit k5 = P1^5;
+ 170          sbit k6 = P1^6;
+ 171          sbit k7 = P1^7;
+ 172          sbit k0 = P1^0;
+ 173          sbit high = P4^5;
+ 174          sbit low  = P4^4;
+ 175          
+ 176          extern uchar n = 0;
+ 177          //uchar code Music_Tab1[] = {10,2,10,2,11,2,12,2,12,2,13,2,10,2,9,2,
+ 178          //                                                 8,2,8,2,9,2,10,2,10,3,9,1,9,4,
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 4   
+
+ 179          //                                                 10,2,10,2,11,2,12,2,12,2,11,2,10,2,10,2,
+ 180          //                                                 8,2,8,2,9,2,10,2,8,3,8,1,8,4,
+ 181          //                                                 9,2,9,2,10,2,8,2,9,2,10,1,11,1,10,2,8,2,
+ 182          //                                                 9,2,10,1,11,1,11,2,9,2,8,2,9,2,5,4,
+ 183          //                                                 10,2,10,2,11,2,12,2,12,2,11,2,10,2,9,2,
+ 184          //                                                 8,2,8,2,9,2,10,2,9,3,8,1,8,4,0};
+ 185          
+ 186          uchar code Music_Tab1[] = {10,2,10,2,11,2,12,2,12,2,11,2,10,2,9,2,
+ 187                                                             8,2,8,2,9,2,10,2,10,3,9,1,9,4,
+ 188                                                             10,2,10,2,11,2,12,2,12,2,11,2,10,2,9,2,
+ 189                                                             8,2,8,2,9,2,10,2,9,3,8,1,8,4,
+ 190                                                             9,2,9,2,10,2,8,2,9,2,10,1,11,1,10,2,8,2,
+ 191                                                             9,2,10,1,11,1,10,2,9,2,8,2,9,2,5,4,
+ 192                                                             10,2,10,2,11,2,12,2,12,2,11,2,10,2,9,2,
+ 193                                                             8,2,8,2,9,2,10,2,9,3,8,1,8,4,0,0,0,0,0,0,0,0};         //欢乐颂
+ 194          
+ 195          uchar code Music_Tab2[] = {13,1,14,1,
+ 196                                                             15,3,14,1,15,2,17,2,14,5,10,2,
+ 197                                                             13,3,12,1,13,2,15,2,12,5,10,2,
+ 198                                                             11,3,10,1,11,1,15,1,15,2,10,5,15,2,
+ 199                                                             14,3,11,1,11,2,14,2,14,4,0,0,0,0,0,0,0,0}     ;       //天空之城
+ 200          
+ 201          
+ 202          void drawPiano(void)
+ 203          {
+ 204   1           //在屏幕下方显示出钢琴按键
+ 205   1               show_Pic(0,47,2,16,key0);
+ 206   1               show_Pic(16,47,2,16,key0);
+ 207   1               show_Pic(32,47,2,16,key0);
+ 208   1               show_Pic(16*3,47,2,16,key0);
+ 209   1               show_Pic(16*4,47,2,16,key0);
+ 210   1               show_Pic(16*5,47,2,16,key0);
+ 211   1               show_Pic(16*6,47,2,16,key0);
+ 212   1               show_Pic(16*3,0,2,16,gay);
+ 213   1      }
+ 214          
+ 215          void showStatus(unsigned char status)
+ 216          {
+ 217   1          //如果status》=5，显示good；如果status=0，显示miss;中间显示*x
+ 218   1              if(status>=5)
+ 219   1                 { show_Pic(5*16,14,6,14,good);//great
+ 220   2                       show_Pic(7*16,28,2,12,add2);
+ 221   2                 }
+ 222   1              else if(status==0)
+ 223   1                  {show_Pic(5*16,14,6,14,miss);//miss
+ 224   2                       show_Pic(7*16,28,2,14,BNOTE0);
+ 225   2                      }
+ 226   1              else{
+ 227   2                  switch(status)
+ 228   2                      {
+ 229   3                  case(1):show_Pic(5*16,14,6,14,streak1); break;
+ 230   3                      case(2):show_Pic(5*16,14,6,14,streak2); break;
+ 231   3                      case(3):show_Pic(5*16,14,6,14,streak3); break;
+ 232   3                      case(4):show_Pic(5*16,14,6,14,streak4); break;//streak*
+ 233   3                      }
+ 234   2              }                 
+ 235   1      }
+ 236          
+ 237          void discore(unsigned char value, unsigned char roll)   //分数显示函数，被showscore调用
+ 238          {
+ 239   1           switch(value)
+ 240   1          {
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 5   
+
+ 241   2              case 0:show_Pic(16*(7-roll),0,1,16,NUM0);break;
+ 242   2              case 1:show_Pic(16*(7-roll),0,1,16,NUM1);break;
+ 243   2              case 2:show_Pic(16*(7-roll),0,1,16,NUM2);break;
+ 244   2              case 3:show_Pic(16*(7-roll),0,1,16,NUM3);break;
+ 245   2              case 4:show_Pic(16*(7-roll),0,1,16,NUM4);break;
+ 246   2              case 5:show_Pic(16*(7-roll),0,1,16,NUM5);break;
+ 247   2              case 6:show_Pic(16*(7-roll),0,1,16,NUM6);break;
+ 248   2              case 7:show_Pic(16*(7-roll),0,1,16,NUM7);break;
+ 249   2              case 8:show_Pic(16*(7-roll),0,1,16,NUM8);break;
+ 250   2              case 9:show_Pic(16*(7-roll),0,1,16,NUM9);break;
+ 251   2          } 
+ 252   1      }
+ 253          
+ 254          void showScore(unsigned char score)              //分数显示函数
+ 255          {
+ 256   1          //在屏幕右上角显示出传入的分数
+ 257   1              unsigned char hun,ten,dig,hune;
+ 258   1              hun=score/100;
+ 259   1              hune=score%100;
+ 260   1              ten=hune/10;
+ 261   1              dig=hune%10;
+ 262   1              discore(hun,2);
+ 263   1              discore(ten,1);
+ 264   1              discore(dig,0);
+ 265   1      }
+ 266          
+ 267          void showNote(unsigned char note, unsigned char row)             //左上角音符显示函数
+ 268          {
+ 269   1               row = row-1;
+ 270   1               switch(note)
+ 271   1          {
+ 272   2                  case 0:show_Pic(16*row,0,1,16,note0);break;
+ 273   2              case 1:show_Pic(16*row,0,1,16,note1);break;
+ 274   2              case 2:show_Pic(16*row,0,1,16,note2);break;
+ 275   2              case 3:show_Pic(16*row,0,1,16,note3);break;
+ 276   2              case 4:show_Pic(16*row,0,1,16,note4);break;
+ 277   2                      case 5:show_Pic(16*row,0,1,16,note5);break;
+ 278   2              case 6:show_Pic(16*row,0,1,16,note6);break;
+ 279   2                      case 7:show_Pic(16*row,0,1,16,note7);break;
+ 280   2              case 8:show_Pic(16*row,0,1,16,note8);break;
+ 281   2                      case 9:show_Pic(16*row,0,1,16,note9);break;
+ 282   2              case 10:show_Pic(16*row,0,1,16,note10);break;
+ 283   2              case 11:show_Pic(16*row,0,1,16,note11);break;
+ 284   2              case 12:show_Pic(16*row,0,1,16,note12);break;
+ 285   2                      case 13:show_Pic(16*row,0,1,16,note13);break;
+ 286   2              case 14:show_Pic(16*row,0,1,16,note14);break;
+ 287   2                      case 15:show_Pic(16*row,0,1,16,note15);break;
+ 288   2              case 16:show_Pic(16*row,0,1,16,note16);break;
+ 289   2                      case 17:show_Pic(16*row,0,1,16,note17);break;
+ 290   2              case 18:show_Pic(16*row,0,1,16,note18);break;
+ 291   2                      case 19:show_Pic(16*row,0,1,16,note19);break;
+ 292   2              case 20:show_Pic(16*row,0,1,16,note20);break;
+ 293   2                      case 21:show_Pic(16*row,0,1,16,note21);break;
+ 294   2          } 
+ 295   1      }
+ 296          
+ 297          void rushNote(unsigned char note)                                       //屏幕中间音符显示函数
+ 298          {
+ 299   1               unsigned char row;
+ 300   1               row=note%7;
+ 301   1               if(row==0)
+ 302   1                   row=7;
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 6   
+
+ 303   1              row = row-1;
+ 304   1                switch(note)
+ 305   1          {
+ 306   2                  case 0:show_Pic(16*row,27,2,21,BNOTE0);break;
+ 307   2              case 1:show_Pic(16*row,27,2,21,BNOTE1);break;
+ 308   2              case 2:show_Pic(16*row,27,2,21,BNOTE2);break;
+ 309   2              case 3:show_Pic(16*row,27,2,21,BNOTE3);break;
+ 310   2              case 4:show_Pic(16*row,27,2,21,BNOTE4);break;
+ 311   2                      case 5:show_Pic(16*row,27,2,21,BNOTE5);break;
+ 312   2              case 6:show_Pic(16*row,27,2,21,BNOTE6);break;
+ 313   2                      case 7:show_Pic(16*row,27,2,21,BNOTE7);break;
+ 314   2              case 8:show_Pic(16*row,27,2,21,BNOTE8);break;
+ 315   2                      case 9:show_Pic(16*row,27,2,21,BNOTE9);break;
+ 316   2              case 10:show_Pic(16*row,27,2,21,BNOTE10);break;
+ 317   2              case 11:show_Pic(16*row,27,2,21,BNOTE11);break;
+ 318   2              case 12:show_Pic(16*row,27,2,21,BNOTE12);break;
+ 319   2                      case 13:show_Pic(16*row,27,2,21,BNOTE13);break;
+ 320   2              case 14:show_Pic(16*row,27,2,21,BNOTE14);break;
+ 321   2                      case 15:show_Pic(16*row,27,2,21,BNOTE15);break;
+ 322   2              case 16:show_Pic(16*row,27,2,21,BNOTE16);break;
+ 323   2                      case 17:show_Pic(16*row,27,2,21,BNOTE17);break;
+ 324   2              case 18:show_Pic(16*row,27,2,21,BNOTE18);break;
+ 325   2                      case 19:show_Pic(16*row,27,2,21,BNOTE19);break;
+ 326   2              case 20:show_Pic(16*row,27,2,21,BNOTE20);break;
+ 327   2                      case 21:show_Pic(16*row,27,2,21,BNOTE21);break;
+ 328   2          } 
+ 329   1      
+ 330   1      }
+ 331          
+ 332          void musicGameEnd(unsigned char score)                  //结束函数
+ 333          {
+ 334   1          
+ 335   1              unsigned char hun1;
+ 336   1              unsigned char ten1;
+ 337   1              unsigned char dig1;
+ 338   1              unsigned char hune1;
+ 339   1              init();
+ 340   1              hun1=48+score/100;
+ 341   1              hune1=score%100;
+ 342   1              ten1=48+hune1/10;
+ 343   1              dig1=48+hune1%10;
+ 344   1              discore(hun1,2);
+ 345   1              discore(ten1,1);
+ 346   1              discore(dig1,0);
+ 347   1              Lcd_WriteCmd(0x01);  
+ 348   1          Lcd_WriteStr(0,0,"游戏结束");
+ 349   1              Lcd_WriteStr(1,0,"您的得分是");
+ 350   1              Lcd_WriteData(58);
+ 351   1              Lcd_WriteData(hun1);
+ 352   1              Lcd_WriteData(ten1);
+ 353   1              Lcd_WriteData(dig1);
+ 354   1              Lcd_WriteStr(2,0,"按左上角退出");
+ 355   1      }
+ 356          
+ 357          unsigned char checkKey(unsigned char note,unsigned char flag)              //按键识别函数
+ 358          {
+ 359   1          unsigned char sign,value;
+ 360   1              value=0;
+ 361   1              sign=0;
+ 362   1      //      if(flag==1)
+ 363   1      //          return 1;
+ 364   1      //      else
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 7   
+
+ 365   1      //      {
+ 366   1                  if(k1==0||k2==0||k3==0||k4==0||k5==0||k6==0||k7==0||k0==0)
+ 367   1                      {
+ 368   2                      if(k1==0) sign=(8+7*high-7*low);
+ 369   2                  if(k2==0) sign=(9+7*high-7*low);
+ 370   2                  if(k3==0) sign=(10+7*high-7*low);
+ 371   2                  if(k4==0) sign=(11+7*high-7*low);
+ 372   2                  if(k5==0) sign=(12+7*high-7*low);
+ 373   2                  if(k6==0) sign=(13+7*high-7*low);
+ 374   2                  if(k7==0) sign=(14+7*high-7*low);
+ 375   2                       }
+ 376   1      
+ 377   1         
+ 378   1      //              if(sign==note)
+ 379   1      //                  value=1; 
+ 380   1      
+ 381   1                      return sign;
+ 382   1      //      }
+ 383   1      //      return 0;
+ 384   1      }
+*** WARNING C280 IN LINE 357 OF ..\ASSIST\MUSICGAME.C: 'note': unreferenced local variable
+*** WARNING C280 IN LINE 357 OF ..\ASSIST\MUSICGAME.C: 'flag': unreferenced local variable
+ 385          
+ 386          void musicGame(unsigned char speed)
+ 387          {
+ 388   1          
+ 389   1              uchar p,m,flag,score,streak,time,sign;   //m为频率常数变量,flag为是否得分,score为得分量,streak为连击次数 
+             -   
+ 390   1              uchar i=0;
+ 391   1              speed=speed*15;                    //速度处理
+ 392   1              TMOD|=0x11;    
+ 393   1              ET0=1;           //为了不影响别的使能位
+ 394   1              drawPiano();             //画键盘
+ 395   1              score=0;
+ 396   1              streak=0;
+ 397   1              flag=0;
+ 398   1              time=1;
+ 399   1              showScore(score);               //显示分数
+ 400   1              showStatus(streak);             //显示连击状态
+ 401   1              while(menuflag==9)
+ 402   1              {
+ 403   2                  if((p%7)==0)
+ 404   2                          show_Pic(16*6,27,2,21,BNOTE0);
+ 405   2                      else
+ 406   2                          show_Pic(16*(p%7)-16,27,2,21,BNOTE0);
+ 407   2                  flag=0;        //每次初始化标志位
+ 408   2                      showStatus(streak);       //显示连击数
+ 409   2                      
+ 410   2                      if(Music_Tab1[i+6]!=0)             //左上角显示接下来要出现的音符
+ 411   2                      {
+ 412   3                      showNote(Music_Tab1[i+2],3);
+ 413   3                      showNote(Music_Tab1[i+4],2);
+ 414   3                      showNote(Music_Tab1[i+6],1);
+ 415   3                      }else if(Music_Tab1[i+4]!=0)
+ 416   2                      {
+ 417   3                      showNote(Music_Tab1[i+2],3);
+ 418   3                      showNote(Music_Tab1[i+4],2);
+ 419   3              showNote(0,1);  //0代表空白
+ 420   3                      }else if(Music_Tab1[i+2]!=0)
+ 421   2                      {
+ 422   3                      showNote(Music_Tab1[i+2],3);
+ 423   3                      showNote(0,2);
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 8   
+
+ 424   3              showNote(0,1);
+ 425   3                      }else
+ 426   2                      {
+ 427   3                      showNote(0,3);
+ 428   3                      showNote(0,2);
+ 429   3              showNote(0,1);
+ 430   3                      }
+ 431   2      
+ 432   2                      TH0=0xd8;TL0=0xef;
+ 433   2                      p = Music_Tab1[i];
+ 434   2                      if(p==0)break;
+ 435   2                      else
+ 436   2                      {
+ 437   3                              m = p; 
+ 438   3                              i++;
+ 439   3                              n = Music_Tab1[i]*speed;                 //改变这个可以调整每个音的时间长短
+ 440   3                              TR0 = 1;
+ 441   3                              rushNote(p);
+ 442   3                              while(n!=0)
+ 443   3                              {
+ 444   4                                      
+ 445   4                                      if(time==1){             //在发音函数中要控制多余步骤的时间，不能每次进入运行的时间不一样，影响音符频率
+ 446   5                                  sign=checkKey(m,flag);         //按键检测函数
+ 447   5                                      if(sign!=0)
+ 448   5                                      {
+ 449   6                                      time=0;
+ 450   6                                              if((sign%7)==0)                                                   //显示被按下的按键
+ 451   6                                   show_Pic(16*6,47,2,16,key1);
+ 452   6                              else
+ 453   6                                   show_Pic(16*(sign%7)-16,47,2,16,key1);
+ 454   6                                              showStatus(streak);       //显示连击数
+ 455   6                                      if(sign==m){                       //m为当前正在播放的音符
+ 456   7                                           flag=1;
+ 457   7                                               streak=streak+1;               //连击+1
+ 458   7                                               score=score+1;                 //分数+1
+ 459   7                                               if(streak>=5)
+ 460   7                                                   score=score+1;
+ 461   7                                               showStatus(streak);      //显示连击数
+ 462   7                                   showScore(score);    //显示分数
+ 463   7                                              }else
+ 464   6                                                          streak=0;
+ 465   6      
+ 466   6                                          } 
+ 467   5                                      } else
+ 468   4                                         checkKey(m,flag);      //补齐对称，确保每次时间一致
+ 469   4                                  Sound(m);                    //发声函数
+ 470   4                              }
+ 471   3                              if(flag==0)
+ 472   3                                  streak=0;                            //未按对，连击清0
+ 473   3                              if(time==0)                               //有按键按下，复位标志位，复位键盘
+ 474   3                              {
+ 475   4                              drawPiano();
+ 476   4                              time=1;}
+ 477   3                              TR0 = 0;
+ 478   3                              delay(50);      
+ 479   3                      }
+ 480   2                      i++;
+ 481   2              }
+ 482   1              musicGameEnd(score);
+ 483   1      }
+ 484          
+ 485          void musicGame2(unsigned char speed)
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 9   
+
+ 486          {
+ 487   1          
+ 488   1              uchar p,m,flag,score,streak,time,sign;   //m为频率常数变量,flag为是否得分,score为得分量,streak为连击次数 
+             -   
+ 489   1              uchar i=0;
+ 490   1              speed=speed*15;           
+ 491   1              TMOD|=0x11;    
+ 492   1              ET0=1;           //为了不影响别的使能位
+ 493   1              drawPiano();
+ 494   1              score=0;
+ 495   1              streak=0;
+ 496   1              flag=0;
+ 497   1              time=1;
+ 498   1              showScore(score);
+ 499   1              showStatus(streak);
+ 500   1              while(menuflag==9)
+ 501   1              {
+ 502   2                  if((p%7)==0)
+ 503   2                          show_Pic(16*6,27,2,21,BNOTE0);
+ 504   2                      else
+ 505   2                          show_Pic(16*(p%7)-16,27,2,21,BNOTE0);
+ 506   2      ////            if(flag!=0)
+ 507   2      ////            {
+ 508   2      ////                score=score+1;
+ 509   2      ////                    streak=streak+1;
+ 510   2      ////            }else
+ 511   2      //                  streak=0;            //判断连击与分数
+ 512   2      
+ 513   2                  flag=0;
+ 514   2                      showStatus(streak);       //显示连击数
+ 515   2      //              showScore(score);         //显示分数
+ 516   2                      //左上角显示接下来要出现的音符
+ 517   2                      if(Music_Tab1[i+6]!=0)
+ 518   2                      {
+ 519   3                      showNote(Music_Tab2[i+2],3);
+ 520   3                      showNote(Music_Tab2[i+4],2);
+ 521   3                      showNote(Music_Tab2[i+6],1);
+ 522   3                      }else if(Music_Tab2[i+4]!=0)
+ 523   2                      {
+ 524   3                      showNote(Music_Tab2[i+2],3);
+ 525   3                      showNote(Music_Tab2[i+4],2);
+ 526   3              showNote(0,1);  //0代表空白
+ 527   3                      }else if(Music_Tab2[i+2]!=0)
+ 528   2                      {
+ 529   3                      showNote(Music_Tab2[i+2],3);
+ 530   3                      showNote(0,2);
+ 531   3              showNote(0,1);
+ 532   3                      }else
+ 533   2                      {
+ 534   3                      showNote(0,3);
+ 535   3                      showNote(0,2);
+ 536   3              showNote(0,1);
+ 537   3                      }
+ 538   2      
+ 539   2      
+ 540   2                      TH0=0xd8;TL0=0xef;
+ 541   2                      p = Music_Tab2[i];
+ 542   2                      if(p==0)break;
+ 543   2                      else
+ 544   2                      {
+ 545   3                              m = p; 
+ 546   3                              i++;
+C51 COMPILER V9.01   MUSICGAME                                                             01/19/2018 10:17:05 PAGE 10  
+
+ 547   3                              n = Music_Tab2[i]*speed;                 //改变这个可以调整每个音的时间长短
+ 548   3                              TR0 = 1;
+ 549   3                              rushNote(p);
+ 550   3                              while(n!=0)
+ 551   3                              {
+ 552   4                                      
+ 553   4                                      if(time==1){
+ 554   5                                  sign=checkKey(m,flag);
+ 555   5                                      if(sign!=0)
+ 556   5                                      {
+ 557   6                                      time=0;
+ 558   6                                              if((sign%7)==0)
+ 559   6                                   show_Pic(16*6,47,2,16,key1);
+ 560   6                              else
+ 561   6                                   show_Pic(16*(sign%7)-16,47,2,16,key1);
+ 562   6                                              showStatus(streak);       //显示连击数
+ 563   6                                      if(sign==m){ 
+ 564   7                                           flag=1;
+ 565   7                                               streak=streak+1;
+ 566   7                                               score=score+1;
+ 567   7                                               if(streak>=5)
+ 568   7                                                   score=score+1;
+ 569   7                                               showStatus(streak);      //显示连击数
+ 570   7                                   showScore(score);    //显示分数
+ 571   7                                              }else
+ 572   6                                                          streak=0;
+ 573   6      
+ 574   6                                          } 
+ 575   5                                      } else
+ 576   4                                         checkKey(m,flag);
+ 577   4                                  Sound(m);
+ 578   4                              }
+ 579   3                              if(flag==0)
+ 580   3                                  streak=0;
+ 581   3                              if(time==0)
+ 582   3                              {
+ 583   4                              drawPiano();
+ 584   4                              time=1;}
+ 585   3                              TR0 = 0;
+ 586   3                              delay(50);      
+ 587   3                      }
+ 588   2                      i++;
+ 589   2              }
+ 590   1              musicGameEnd(score);
+ 591   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3855    ----
+   CONSTANT SIZE    =   2285    ----
+   XDATA SIZE       =   ----      31
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)
